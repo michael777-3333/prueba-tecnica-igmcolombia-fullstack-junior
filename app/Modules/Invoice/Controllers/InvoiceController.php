@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Modules\Invoice\Controllers;
+
+use App\Modules\Invoice\Models\Invoice;
+use App\Modules\Invoice\Services\InvoiceService;
+use App\Modules\Invoice\Resources\InvoiceResource;
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+
+class InvoiceController extends Controller
+{
+    protected $InvoiceService;
+
+    public function __construct(InvoiceService $InvoiceService)
+    {
+        $this->InvoiceService = $InvoiceService;
+    }
+
+    public function index()
+    {
+        $Invoices = $this->InvoiceService->getAllInvoices();
+        return InvoiceResource::collection($Invoices);
+    }
+
+    public function store(Request $request)
+    {
+        $Invoice = $this->InvoiceService->createInvoice($request->all());
+        return new InvoiceResource($Invoice);
+    }
+
+    public function show(Invoice $Invoice)
+    {
+        return new InvoiceResource($Invoice);
+    }
+
+    public function update(Request $request, Invoice $Invoice)
+    {
+        $Invoice = $this->InvoiceService->updateInvoice($Invoice, $request->all());
+        return new InvoiceResource($Invoice);
+    }
+
+    public function destroy(Invoice $Invoice)
+    {
+        $this->InvoiceService->deleteInvoice($Invoice);
+        return response()->json(null, 204);
+    }
+}
