@@ -16,6 +16,9 @@
         @inertiaHead
     </head>
     <body class="font-sans antialiased">
+        <!-- AGREGAR ESTE ELEMENTO -->
+        <div id="app" data-page="{{ json_encode($page) }}"></div>
+        
         @inertia
     </body>
 </html>
