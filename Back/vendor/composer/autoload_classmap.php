@@ -32,6 +32,7 @@ return array(
     'App\\Modules\\User\\Resources\\UserResource' => $baseDir . '/app/Modules/User/Resources/UserResource.php',
     'App\\Modules\\User\\Services\\UserService' => $baseDir . '/app/Modules/User/Services/UserService.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',
+    'App\\Providers\\RouteServiceProvider' => $baseDir . '/app/Providers/RouteServiceProvider.php',
     'Attribute' => $vendorDir . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
     'Brick\\Math\\BigDecimal' => $vendorDir . '/brick/math/src/BigDecimal.php',
     'Brick\\Math\\BigInteger' => $vendorDir . '/brick/math/src/BigInteger.php',

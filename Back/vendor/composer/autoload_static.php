@@ -575,6 +575,7 @@ class ComposerStaticInite655b16e797919a6fe43a7e2f5e65017
         'App\\Modules\\User\\Resources\\UserResource' => __DIR__ . '/../..' . '/app/Modules/User/Resources/UserResource.php',
         'App\\Modules\\User\\Services\\UserService' => __DIR__ . '/../..' . '/app/Modules/User/Services/UserService.php',
         'App\\Providers\\AppServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AppServiceProvider.php',
+        'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Brick\\Math\\BigDecimal' => __DIR__ . '/..' . '/brick/math/src/BigDecimal.php',
         'Brick\\Math\\BigInteger' => __DIR__ . '/..' . '/brick/math/src/BigInteger.php',

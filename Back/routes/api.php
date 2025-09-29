@@ -13,56 +13,9 @@ use App\Modules\AttachedFile\Controllers\AttachedFileController;
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
-// Rutas de autenticación
-Route::prefix('auth')->group(function () {
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
-    Route::put('/profile', [AuthController::class, 'updateProfile'])->middleware('auth:sanctum');
-    Route::put('/password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
-});
-
-// Rutas protegidas
-Route::middleware('auth:sanctum')->group(function () {
-    // Usuarios
-    Route::apiResource('users', UserController::class);
-    
-    // Clientes
-    Route::apiResource('customers', CustomerController::class);
-    
-    // Facturas
-    Route::apiResource('invoices', InvoiceController::class);
-    
-    // Items de factura
-    Route::apiResource('invoice-items', InvoiceItemController::class);
-    
-    // Archivos adjuntos
-    Route::apiResource('attached-files', AttachedFileController::class);
-    
-    // Dashboard/Estadísticas
-    Route::get('/dashboard/stats', function () {
-        return response()->json([
-            'success' => true,
-            'data' => [
-                'totalUsers' => \App\Modules\User\Models\User::count(),
-                'totalCustomers' => \App\Modules\Customer\Models\Customer::count(),
-                'totalInvoices' => \App\Modules\Invoice\Models\Invoice::count(),
-                'newUsersToday' => \App\Modules\User\Models\User::whereDate('created_at', today())->count(),
-                'activeUsers' => \App\Modules\User\Models\User::where('created_at', '>=', now()->subDays(30))->count(),
-            ]
-        ]);
-    });
-});
-
-// Ruta de prueba
+// Ruta de prueba/health check
 Route::get('/test', function () {
     return response()->json([
         'success' => true,
@@ -73,4 +26,82 @@ Route::get('/test', function () {
             'status' => 'OK'
         ]
     ]);
+});
+
+// Rutas de autenticación (sin middleware)
+Route::prefix('auth')->group(function () {
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+    Route::get('/me', [AuthController::class, 'me'])->middleware('auth:sanctum');
+    Route::put('/profile', [AuthController::class, 'updateProfile'])->middleware('auth:sanctum');
+    Route::put('/password', [AuthController::class, 'changePassword'])->middleware('auth:sanctum');
+});
+
+// Rutas protegidas con autenticación
+Route::middleware('auth:sanctum')->group(function () {
+    // USUARIOS
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserController::class, 'index']);
+        Route::post('/', [UserController::class, 'store']);
+        Route::get('/{user}', [UserController::class, 'show']);
+        Route::put('/{user}', [UserController::class, 'update']);
+        Route::delete('/{user}', [UserController::class, 'destroy']);
+    });
+
+    // CLIENTES
+    Route::prefix('customers')->group(function () {
+        Route::get('/', [CustomerController::class, 'index']);
+        Route::post('/', [CustomerController::class, 'store']);
+        Route::get('/{customer}', [CustomerController::class, 'show']);
+        Route::put('/{customer}', [CustomerController::class, 'update']);
+        Route::delete('/{customer}', [CustomerController::class, 'destroy']);
+    });
+
+    // FACTURAS
+    Route::prefix('invoices')->group(function () {
+        Route::get('/', [InvoiceController::class, 'index']);
+        Route::post('/', [InvoiceController::class, 'store']);
+        Route::get('/{invoice}', [InvoiceController::class, 'show']);
+        Route::put('/{invoice}', [InvoiceController::class, 'update']);
+        Route::delete('/{invoice}', [InvoiceController::class, 'destroy']);
+        
+        // Rutas adicionales para facturas
+        Route::get('/{invoice}/items', [InvoiceController::class, 'getItems']);
+        Route::post('/{invoice}/items', [InvoiceController::class, 'addItem']);
+        Route::get('/{invoice}/files', [InvoiceController::class, 'getFiles']);
+        Route::post('/{invoice}/files', [InvoiceController::class, 'addFile']);
+    });
+
+    // ITEMS DE FACTURA
+    Route::prefix('invoice-items')->group(function () {
+        Route::get('/', [InvoiceItemController::class, 'index']);
+        Route::post('/', [InvoiceItemController::class, 'store']);
+        Route::get('/{invoiceItem}', [InvoiceItemController::class, 'show']);
+        Route::put('/{invoiceItem}', [InvoiceItemController::class, 'update']);
+        Route::delete('/{invoiceItem}', [InvoiceItemController::class, 'destroy']);
+    });
+
+    // ARCHIVOS ADJUNTOS
+    Route::prefix('attached-files')->group(function () {
+        Route::get('/', [AttachedFileController::class, 'index']);
+        Route::post('/', [AttachedFileController::class, 'store']);
+        Route::get('/{attachedFile}', [AttachedFileController::class, 'show']);
+        Route::put('/{attachedFile}', [AttachedFileController::class, 'update']);
+        Route::delete('/{attachedFile}', [AttachedFileController::class, 'destroy']);
+    });
+
+    // DASHBOARD/ESTADÍSTICAS
+    Route::get('/dashboard/stats', function () {
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'totalUsers' => \App\Modules\User\Models\User::count(),
+                'totalCustomers' => \App\Modules\Customer\Models\Customer::count(),
+                'totalInvoices' => \App\Modules\Invoice\Models\Invoice::count(),
+                'totalRevenue' => \App\Modules\Invoice\Models\Invoice::where('status', 'paid')->sum('total_amount'),
+                'pendingInvoices' => \App\Modules\Invoice\Models\Invoice::where('status', 'pending')->count(),
+            ]
+        ]);
+    });
 });

@@ -19,33 +19,48 @@ class UserController extends Controller
 
     public function index()
     {
-        $Users = $this->UserService->getAllUsers();
-        return Inertia::render('Users/Users', [
-            'users' => $Users,
-            'filters' => request()->all(['search', 'role']),
+        $users = $this->UserService->getAllUsers();
+        return response()->json([
+            'success' => true,
+            'data' => $users,
+            'count' => $users->count()
         ]);
     }
 
     public function store(Request $request)
     {
-        $User = $this->UserService->createUser($request->all());
-        return new UserResource($User);
+        $user = $this->UserService->createUser($request->all());
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+            'message' => 'Usuario creado exitosamente'
+        ], 201);
     }
 
-    public function show(User $User)
+    public function show(User $user)
     {
-        return new UserResource($User);
+        return response()->json([
+            'success' => true,
+            'data' => $user
+        ]);
     }
 
-    public function update(Request $request, User $User)
+    public function update(Request $request, User $user)
     {
-        $User = $this->UserService->updateUser($User, $request->all());
-        return new UserResource($User);
+        $user = $this->UserService->updateUser($user, $request->all());
+        return response()->json([
+            'success' => true,
+            'data' => $user,
+            'message' => 'Usuario actualizado exitosamente'
+        ]);
     }
 
-    public function destroy(User $User)
+    public function destroy(User $user)
     {
-        $this->UserService->deleteUser($User);
-        return response()->json(null, 204);
+        $this->UserService->deleteUser($user);
+        return response()->json([
+            'success' => true,
+            'message' => 'Usuario eliminado exitosamente'
+        ]);
     }
 }
