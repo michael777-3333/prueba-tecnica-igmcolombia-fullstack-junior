@@ -6,6 +6,7 @@ services:
     volumes:
       - ./.env:/var/www/html/.env
       - ./public/build:/var/www/html/public/build
+      - /var/www/html/vendor
     env_file:
       - .env
     networks:
