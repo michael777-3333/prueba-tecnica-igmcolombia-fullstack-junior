@@ -20,24 +20,40 @@ class InvoiceController extends Controller
     public function index()
     {
         $Invoices = $this->InvoiceService->getAllInvoices();
-        return InvoiceResource::collection($Invoices);
+        return response()->json([
+            'success' => true,
+            'data' => $Invoices,
+            'count' => $Invoices->count()
+        ]);
     }
 
     public function store(Request $request)
     {
         $Invoice = $this->InvoiceService->createInvoice($request->all());
-        return new InvoiceResource($Invoice);
+        return response()->json([
+            'success' => true,
+            'data' => $Invoice,
+            'message' => 'Factura creada exitosamente'
+        ], 201);
     }
 
     public function show(Invoice $Invoice)
     {
-        return new InvoiceResource($Invoice);
+        return response()->json([
+            'success' => true,
+            'data' => $Invoice,
+            'message' => 'Factura encontrada exitosamente'
+        ]);
     }
 
     public function update(Request $request, Invoice $Invoice)
     {
         $Invoice = $this->InvoiceService->updateInvoice($Invoice, $request->all());
-        return new InvoiceResource($Invoice);
+        return response()->json([
+            'success' => true,
+            'data' => $Invoice,
+            'message' => 'Factura actualizada exitosamente'
+        ]);
     }
 
     public function destroy(Invoice $Invoice)

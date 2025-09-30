@@ -25,7 +25,7 @@ class InvoiceItemService
     public function updateInvoiceItem(InvoiceItem $InvoiceItem, array $data): InvoiceItem
     {
         $InvoiceItem->update($data);
-        return $InvoiceItem->fresh();
+        return $InvoiceItem;
     }
 
     public function deleteInvoiceItem(InvoiceItem $InvoiceItem): bool

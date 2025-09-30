@@ -20,24 +20,40 @@ class CustomerController extends Controller
     public function index()
     {
         $Customers = $this->CustomerService->getAllCustomers();
-        return CustomerResource::collection($Customers);
+        return response()->json([
+            'success' => true,
+            'data' => $Customers,
+            'count' => $Customers->count()
+        ]);
     }
 
     public function store(Request $request)
     {
         $Customer = $this->CustomerService->createCustomer($request->all());
-        return new CustomerResource($Customer);
+        return response()->json([
+            'success' => true,
+            'data' => $Customer,
+            'message' => 'Cliente creado exitosamente'
+        ], 201);
     }
 
     public function show(Customer $Customer)
     {
-        return new CustomerResource($Customer);
+        return response()->json([
+            'success' => true,
+            'data' => $Customer,
+            'message' => 'Cliente encontrado exitosamente'
+        ]);
     }
 
     public function update(Request $request, Customer $Customer)
     {
         $Customer = $this->CustomerService->updateCustomer($Customer, $request->all());
-        return new CustomerResource($Customer);
+        return response()->json([
+            'success' => true,
+            'data' => $Customer,
+            'message' => 'Cliente actualizado exitosamente'
+        ]);
     }
 
     public function destroy(Customer $Customer)

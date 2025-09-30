@@ -8,7 +8,7 @@ use App\Modules\Customer\Controllers\CustomerController;
 use App\Modules\Invoice\Controllers\InvoiceController;
 use App\Modules\InvoiceItem\Controllers\InvoiceItemController;
 use App\Modules\AttachedFile\Controllers\AttachedFileController;
-
+use App\Modules\Item\Controllers\ItemController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -89,6 +89,15 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{attachedFile}', [AttachedFileController::class, 'show']);
         Route::put('/{attachedFile}', [AttachedFileController::class, 'update']);
         Route::delete('/{attachedFile}', [AttachedFileController::class, 'destroy']);
+    });
+
+    // ITEMS
+    Route::prefix('items')->group(function () {
+        Route::get('/', [ItemController::class, 'index']);
+        Route::post('/', [ItemController::class, 'store']);
+        Route::get('/{item}', [ItemController::class, 'show']);
+        Route::put('/{item}', [ItemController::class, 'update']);
+        Route::delete('/{item}', [ItemController::class, 'destroy']);
     });
 
     // DASHBOARD/ESTADÍSTICAS

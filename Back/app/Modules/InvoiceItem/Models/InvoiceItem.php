@@ -10,7 +10,12 @@ class InvoiceItem extends Model
     use HasFactory;
 
     protected $fillable = [
-        // Add your fillable fields here
+        'invoice_id',
+        'item_id',
+        'name',
+        'quantity',
+        'unit_price',
+        'tax_rate',
     ];
 
     protected $casts = [
@@ -18,4 +23,12 @@ class InvoiceItem extends Model
     ];
 
     // Add your relationships here
+    
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'id';
+    }
 }

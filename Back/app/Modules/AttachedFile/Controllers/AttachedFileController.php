@@ -20,24 +20,41 @@ class AttachedFileController extends Controller
     public function index()
     {
         $AttachedFiles = $this->AttachedFileService->getAllAttachedFiles();
-        return AttachedFileResource::collection($AttachedFiles);
+        return response()->json([
+            'success' => true,
+            'data' => $AttachedFiles,
+            'count' => $AttachedFiles->count()
+        ]);
     }
 
     public function store(Request $request)
     {
         $AttachedFile = $this->AttachedFileService->createAttachedFile($request->all());
-        return new AttachedFileResource($AttachedFile);
+        return response()->json([
+            'success' => true,
+            'data' => $AttachedFile,
+            'message' => 'Archivo adjunto creado exitosamente'
+        ], 201);
     }
 
     public function show(AttachedFile $AttachedFile)
     {
-        return new AttachedFileResource($AttachedFile);
+        return response()->json([
+            'success' => true,
+            'data' => $AttachedFile,
+            'message' => 'Archivo adjunto encontrado exitosamente'
+        ]);
     }
 
     public function update(Request $request, AttachedFile $AttachedFile)
     {
-        $AttachedFile = $this->AttachedFileService->updateAttachedFile($AttachedFile, $request->all());
-        return new AttachedFileResource($AttachedFile);
+        $attachedFile = AttachedFile::findOrFail($AttachedFile->id);
+        $updatedAttachedFile = $this->AttachedFileService->updateAttachedFile($attachedFile, $request->all());
+        return response()->json([
+            'success' => true,
+            'data' => new AttachedFileResource($updatedAttachedFile),
+            'message' => 'Archivo adjunto actualizado exitosamente'
+        ]);
     }
 
     public function destroy(AttachedFile $AttachedFile)

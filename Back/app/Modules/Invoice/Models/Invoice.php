@@ -10,7 +10,16 @@ class Invoice extends Model
     use HasFactory;
 
     protected $fillable = [
-        // Add your fillable fields here
+        'id',
+        'invoice_number',
+        'description',
+        'notes',
+        'issue_date',
+        'due_date',
+        'total_amount',
+        'status',
+        'customer_id',
+        'user_id'
     ];
 
     protected $casts = [
@@ -18,4 +27,13 @@ class Invoice extends Model
     ];
 
     // Add your relationships here
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

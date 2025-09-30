@@ -10,7 +10,13 @@ class Customer extends Model
     use HasFactory;
 
     protected $fillable = [
-        // Add your fillable fields here
+        'id',
+        'first_name',
+        'last_name',
+        'document_type',
+        'document',
+        'email',
+        'phone'
     ];
 
     protected $casts = [
@@ -18,4 +24,9 @@ class Customer extends Model
     ];
 
     // Add your relationships here
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
 }

@@ -20,29 +20,51 @@ class InvoiceItemController extends Controller
     public function index()
     {
         $InvoiceItems = $this->InvoiceItemService->getAllInvoiceItems();
-        return InvoiceItemResource::collection($InvoiceItems);
+        return response()->json([
+            'success' => true,
+            'data' => InvoiceItemResource::collection($InvoiceItems),
+            'message' => 'Items de factura encontrados exitosamente'
+        ]);
     }
 
     public function store(Request $request)
     {
         $InvoiceItem = $this->InvoiceItemService->createInvoiceItem($request->all());
-        return new InvoiceItemResource($InvoiceItem);
+        return response()->json([
+            'success' => true,
+            'data' => new InvoiceItemResource($InvoiceItem),
+            'message' => 'Item de factura creado exitosamente'
+        ], 201);
     }
 
-    public function show(InvoiceItem $InvoiceItem)
+    public function show($id)
     {
-        return new InvoiceItemResource($InvoiceItem);
+        $InvoiceItem = InvoiceItem::findOrFail($id);
+        return response()->json([
+            'success' => true,
+            'data' => new InvoiceItemResource($InvoiceItem),
+            'message' => 'Item de factura encontrado exitosamente'
+        ]);
     }
 
-    public function update(Request $request, InvoiceItem $InvoiceItem)
+    public function update(Request $request, $id)
     {
-        $InvoiceItem = $this->InvoiceItemService->updateInvoiceItem($InvoiceItem, $request->all());
-        return new InvoiceItemResource($InvoiceItem);
+        $InvoiceItem = InvoiceItem::findOrFail($id);
+        $updatedItem = $this->InvoiceItemService->updateInvoiceItem($InvoiceItem, $request->all());
+        return response()->json([
+            'success' => true,
+            'data' => new InvoiceItemResource($updatedItem),
+            'message' => 'Item de factura actualizado exitosamente'
+        ]);
     }
 
-    public function destroy(InvoiceItem $InvoiceItem)
+    public function destroy($id)
     {
+        $InvoiceItem = InvoiceItem::findOrFail($id);
         $this->InvoiceItemService->deleteInvoiceItem($InvoiceItem);
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true,
+            'message' => 'Item de factura eliminado exitosamente'
+        ]);
     }
 }

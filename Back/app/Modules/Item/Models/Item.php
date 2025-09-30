@@ -1,20 +1,22 @@
 <?php
 
-namespace App\Modules\AttachedFile\Models;
+namespace App\Modules\Item\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class AttachedFile extends Model
+class Item extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'id',
-        'invoice_id',
-        'file_path',
-        'file_type',
-        'upload_date',
+        'name',
+        'price',
+        'quantity',
+        'total',
+        'iva',
+       
     ];
 
     protected $casts = [
@@ -22,8 +24,8 @@ class AttachedFile extends Model
     ];
 
     // Add your relationships here
-    public function invoice()
+    public function invoiceItems()
     {
-        return $this->belongsTo(Invoice::class);
+        return $this->hasMany(InvoiceItem::class);
     }
 }
