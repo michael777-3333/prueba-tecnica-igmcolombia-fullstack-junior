@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import AppLayout from '@/components/AppLayout.vue'
 </script>
 
 <template>
-  <div>
+  <AppLayout>
     <RouterView />
-  </div>
+  </AppLayout>
 </template>
 
 <style>

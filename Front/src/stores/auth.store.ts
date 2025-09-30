@@ -1,17 +1,8 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '@/services/api'
+import type { User } from '@/views/users/interfaces/user.interface'
 
-export interface User {
-  id: number
-  name: string
-  email: string
-  phone?: string
-  position?: string
-  bio?: string
-  created_at: string
-  updated_at: string
-}
 
 export interface LoginCredentials {
   email: string

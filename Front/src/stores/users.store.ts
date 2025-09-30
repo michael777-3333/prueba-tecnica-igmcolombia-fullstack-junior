@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@/services/api'
-import type { User } from './auth'
+import type { User } from '@/views/users/interfaces/user.interface'
 
 export const useUsersStore = defineStore('users', () => {
   // Estado
@@ -16,6 +16,8 @@ export const useUsersStore = defineStore('users', () => {
     
     try {
       const response = await api.get('/users')
+      console.log('response', response)
+      
       users.value = response.data.data || response.data
       return { success: true, data: users.value }
     } catch (err: any) {

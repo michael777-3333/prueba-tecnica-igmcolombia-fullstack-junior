@@ -1,6 +1,5 @@
 <template>
-  <AppLayout>
-    <div class="px-4 py-6 sm:px-0">
+  <div class="px-4 py-6 sm:px-0">
       <div class="max-w-3xl mx-auto">
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-gray-900">Mi Perfil</h1>
@@ -197,13 +196,11 @@
         </div>
       </div>
     </div>
-  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { reactive, onMounted } from 'vue'
-import AppLayout from '@/components/AppLayout.vue'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth.store'
 
 const authStore = useAuthStore()
 

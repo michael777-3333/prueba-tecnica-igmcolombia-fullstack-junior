@@ -1,6 +1,5 @@
 <template>
-  <AppLayout>
-    <div class="px-4 py-6 sm:px-0">
+  <div class="px-4 py-6 sm:px-0">
       <div class="mb-8">
         <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
         <p class="mt-2 text-gray-600">Resumen de tu aplicación</p>
@@ -160,12 +159,10 @@
         </div>
       </div>
     </div>
-  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import AppLayout from '@/components/AppLayout.vue'
 import api from '@/services/api'
 
 const stats = ref({
