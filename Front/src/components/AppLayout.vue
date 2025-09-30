@@ -1,196 +1,231 @@
 <template>
-  <div class="app-layout">
-    <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <!-- Logo -->
-          <div class="flex items-center">
-            <router-link to="/" class="text-xl font-bold text-gray-900">
-              Mi App
-            </router-link>
+  <div class="min-h-screen flex bg-surface-50">
+    <!-- SIDEBAR -->
+    <aside
+      :class="[
+        'flex-shrink-0 h-screen transition-all duration-300 border-r',
+        collapsed ? 'w-16' : 'w-64'
+      ]"
+      class="bg-white/70 backdrop-blur-md"
+    >
+      <div class="flex flex-col h-full">
+        <!-- Brand + collapse -->
+        <div class="flex items-center justify-between p-4 border-b">
+          <router-link to="/" class="flex items-center gap-3">
+            <img src="" alt="logo" class="w-8 h-8 rounded" />
+            <span v-if="!collapsed" class="text-lg font-semibold text-slate-700">MiApp</span>
+          </router-link>
+
+          <Button
+            :icon="collapsed ? 'pi pi-angle-double-right' : 'pi pi-angle-double-left'"
+            class="p-button-text p-button-rounded"
+            @click="collapsed = !collapsed"
+            aria-label="Toggle sidebar"
+            size="small"
+          />
+        </div>
+
+        <!-- User -->
+        <div class="p-4 border-b flex items-center gap-3">
+          <Avatar
+            label="MS"
+            :size="collapsed ? 'normal' : 'large'"
+            class="bg-primary text-white"
+          />
+          <div v-if="!collapsed" class="flex flex-col">
+            <div class="font-semibold text-slate-700">{{ userName }}</div>
+            <div class="text-sm text-slate-500">{{ userEmail }}</div>
           </div>
+        </div>
 
-          <!-- Navigation -->
-          <nav class="hidden md:flex space-x-8">
-            <router-link
-              to="/"
-              class="nav-link"
-              :class="{ 'nav-link-active': $route.name === 'home' }"
-            >
-              Inicio
-            </router-link>
-            <router-link
-              to="/dashboard"
-              class="nav-link"
-              :class="{ 'nav-link-active': $route.name === 'dashboard' }"
-            >
-              Dashboard
-            </router-link>
-            <router-link
-              to="/users"
-              class="nav-link"
-              :class="{ 'nav-link-active': $route.name === 'users' }"
-            >
-              Usuarios
-            </router-link>
-          </nav>
+        <!-- Search (hidden when collapsed) -->
+        <div v-if="!collapsed" class="p-3 border-b">
+          <div class="relative">
+            <i class="pi pi-search absolute left-3 top-3 text-slate-400"></i>
+            <InputText
+              v-model="search"
+              placeholder="Buscar..."
+              class="w-full pl-10"
+            />
+          </div>
+        </div>
 
-          <!-- User Menu -->
-          <div class="flex items-center space-x-4">
-            <div class="relative" v-if="authStore.isAuthenticated">
-              <button
-                @click="showUserMenu = !showUserMenu"
-                class="flex items-center space-x-2 text-sm text-gray-700 hover:text-gray-900"
-              >
-                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                  {{ authStore.user?.name?.charAt(0).toUpperCase() }}
-                </div>
-                <span>{{ authStore.user?.name }}</span>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
+        <!-- Navigation -->
+        <nav class="flex-1 overflow-auto p-2">
+          <ul class="space-y-1">
+            <li
+              v-for="item in nav"
+              :key="item.label"
+              :class="[
+                'nav-item flex items-center gap-3 cursor-pointer group',
+                activeRoute === item.to ? 'nav-item-active' : ''
+              ]"
+              @click="go(item)"
+            >
+              <i :class="['pi', item.icon, 'text-lg w-6 text-center']"></i>
 
-              <!-- Dropdown Menu -->
-              <div
-                v-if="showUserMenu"
-                class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
-              >
-                <router-link
-                  to="/profile"
-                  class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  @click="showUserMenu = false"
-                >
-                  Mi Perfil
-                </router-link>
-                <button
-                  @click="handleLogout"
-                  class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Cerrar Sesión
-                </button>
+              <div class="flex-1 min-w-0">
+                <div v-if="!collapsed" class="truncate">{{ item.label }}</div>
               </div>
+
+              <span v-if="item.badge && !collapsed" class="ml-2">
+                <Badge :value="item.badge" size="large" severity="info" />
+              </span>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Sidebar footer -->
+        <div class="p-3 border-t">
+          <div v-if="!collapsed" class="flex items-center justify-between">
+            <div class="text-sm text-slate-600">v1.0</div>
+            <div class="flex gap-2">
+              <Button icon="pi pi-cog" class="p-button-text" @click="goTo('/settings')" />
+              <Button icon="pi pi-power-off" class="p-button-text" @click="logout" />
             </div>
-
-            <!-- Mobile menu button -->
-            <button
-              @click="showMobileMenu = !showMobileMenu"
-              class="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <!-- Mobile menu -->
-        <div v-if="showMobileMenu" class="md:hidden">
-          <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t">
-            <router-link
-              to="/"
-              class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-              @click="showMobileMenu = false"
-            >
-              Inicio
-            </router-link>
-            <router-link
-              to="/dashboard"
-              class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-              @click="showMobileMenu = false"
-            >
-              Dashboard
-            </router-link>
-            <router-link
-              to="/users"
-              class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-              @click="showMobileMenu = false"
-            >
-              Usuarios
-            </router-link>
-            <router-link
-              to="/profile"
-              class="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-              @click="showMobileMenu = false"
-            >
-              Mi Perfil
-            </router-link>
-            <button
-              @click="handleLogout"
-              class="block w-full text-left px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-            >
-              Cerrar Sesión
-            </button>
           </div>
         </div>
       </div>
-    </header>
+    </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1">
-      <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+    <!-- MAIN -->
+    <div class="flex-1 flex flex-col">
+      <!-- Topbar -->
+      <header class="flex items-center justify-between px-6 py-4 border-b bg-white/60 backdrop-blur-md">
+        <div class="flex items-center gap-4">
+          <h1 class="text-xl font-semibold text-slate-800">{{ pageTitle }}</h1>
+          <span v-if="pageDescription" class="text-sm text-slate-500 hidden md:inline">{{ pageDescription }}</span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <Button icon="pi pi-bell" class="p-button-text" @click="notify" />
+          <Menubar :model="userMenu" :popup="false" class="hidden md:block" />
+        </div>
+      </header>
+
+      <!-- Content area -->
+      <main class="p-6 overflow-auto main-content">
         <router-view />
-      </div>
-    </main>
+      </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-50 border-t">
-      <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-        <p class="text-center text-sm text-gray-500">
-          © 2024 Mi App. Todos los derechos reservados.
-        </p>
-      </div>
-    </footer>
+      <!-- Optional footer -->
+      <footer class="text-center py-4 text-sm text-slate-500 border-t bg-white/40">
+        © {{ new Date().getFullYear() }} MiApp — Hecho con ❤️
+      </footer>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import Menubar from 'primevue/menubar'
+import Button from 'primevue/button'
+import InputText from 'primevue/inputtext'
+import Avatar from 'primevue/avatar'
+import Badge from 'primevue/badge'
+import { useAuthStore } from '@/stores/auth' // ajusta según tu store
 
+// local state
 const router = useRouter()
-const authStore = useAuthStore()
+const route = useRoute()
+const collapsed = ref(false)
+const search = ref('')
 
-const showUserMenu = ref(false)
-const showMobileMenu = ref(false)
+// fake auth data (sustituir por store real)
+const auth = useAuthStore && useAuthStore() || { user: { name: 'Michael Stiven', email: 'michael@example.com' } }
+const userName = computed(() => auth.user?.name || 'Usuario')
+const userEmail = computed(() => auth.user?.email || 'usuario@domain.com')
 
-const handleLogout = async () => {
-  await authStore.logout()
-  showUserMenu.value = false
-  showMobileMenu.value = false
+// navigation
+const nav = [
+  { label: 'Inicio', to: '/', icon: 'pi-home' },
+  { label: 'Dashboard', to: '/dashboard', icon: 'pi-chart-line' },
+  { label: 'Usuarios', to: '/users', icon: 'pi-users', badge: 6 },
+  { label: 'Facturas', to: '/invoices', icon: 'pi-file-invoice' },
+  { label: 'Productos', to: '/products', icon: 'pi-box' },
+  { label: 'Ajustes', to: '/settings', icon: 'pi-cog' }
+]
+
+// computed
+const activeRoute = computed(() => route.path)
+const pageTitle = computed(() => {
+  const first = route.meta?.title || route.name || 'Panel'
+  return typeof first === 'string' ? first : String(first)
+})
+const pageDescription = computed(() => route.meta?.description || '')
+
+// menus (Menubar)
+const userMenu = [
+  {
+    label: 'Cuenta',
+    items: [
+      { label: 'Perfil', icon: 'pi pi-user', command: () => goTo('/profile') },
+      { label: 'Configuración', icon: 'pi pi-cog', command: () => goTo('/settings') }
+    ]
+  }
+]
+
+// methods
+function go(item: any) {
+  if (item.to) router.push(item.to)
+}
+function goTo(path: string) {
+  router.push(path)
+}
+function notify() {
+  // use your notification system (PrimeVue Notify or Toast)
+  // $q.notify or toast - depending on your setup
+  // as example:
+  // $q.notify({ type: 'info', message: 'Notificación de ejemplo' })
+  console.log('notify')
+}
+async function logout() {
+  if (auth.logout) await auth.logout()
   router.push('/login')
 }
 
-// Cerrar menús al hacer click fuera
-const handleClickOutside = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (!target.closest('.relative')) {
-    showUserMenu.value = false
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-  authStore.initAuth()
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
+// watch search key to navigate or filter (example)
+watch(search, (val) => {
+  // Puedes disparar búsqueda global, ejemplo:
+  // router.push({ name: 'search', query: { q: val } })
 })
 </script>
 
 <style scoped>
-.nav-link {
-  @apply text-gray-500 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium transition-colors;
+/* Some small refinements on top of Tailwind */
+.nav-item {
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.75rem;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  transition: background-color .15s ease, color .15s ease, transform .15s ease;
+}
+.nav-item:hover {
+  background-color: rgba(59,130,246,0.06);
+  color: #1d4ed8;
+  transform: translateX(3px);
+}
+.nav-item-active {
+  background: linear-gradient(90deg, rgba(59,130,246,0.12), rgba(96,165,250,0.06));
+  color: #1d4ed8;
+  font-weight: 600;
+}
+/* make icon slightly larger when active */
+.nav-item-active i {
+  transform: scale(1.07);
 }
 
-.nav-link-active {
-  @apply text-blue-600 bg-blue-50;
+/* main content subtle bg */
+.main-content {
+  background: linear-gradient(180deg, rgba(248,250,252,0.6), rgba(255,255,255,0.6));
+  min-height: calc(100vh - 64px);
 }
 
-.app-layout {
-  @apply min-h-screen flex flex-col;
+/* small responsive fixes */
+@media (max-width: 768px) {
+  aside { position: fixed; z-index: 40; height: 100vh; left: 0; top: 0; }
+  .main-content { padding-top: 6rem; }
 }
 </style>

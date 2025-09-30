@@ -1,81 +1,95 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-      <div>
-        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Iniciar Sesión
-        </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          O
-          <router-link to="/register" class="font-medium text-blue-600 hover:text-blue-500">
-            crear una nueva cuenta
-          </router-link>
-        </p>
-      </div>
-      
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label for="email" class="sr-only">Email</label>
-            <input
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
+    <Card class="w-full max-w-md shadow-2xl border-0">
+      <template #header>
+        <div class="text-center pt-6">
+          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <i class="pi pi-lock text-2xl text-white"></i>
+          </div>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">Bienvenido</h1>
+          <p class="text-gray-600 text-lg">Inicia sesión en tu cuenta</p>
+        </div>
+      </template>
+
+      <template #content>
+        <form @submit.prevent="handleLogin" class="space-y-6">
+          <div class="space-y-2">
+            <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+            <InputText
               id="email"
               v-model="form.email"
-              name="email"
               type="email"
-              autocomplete="email"
-              required
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Dirección de email"
+              placeholder="tu@email.com"
+              class="w-full p-3"
+              size="large"
             />
           </div>
-          <div>
-            <label for="password" class="sr-only">Contraseña</label>
-            <input
+
+          <div class="space-y-2">
+            <label for="password" class="text-sm font-semibold text-gray-700">Contraseña</label>
+            <Password
               id="password"
               v-model="form.password"
-              name="password"
-              type="password"
-              autocomplete="current-password"
-              required
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-              placeholder="Contraseña"
+              placeholder="••••••••"
+              toggleMask
+              :feedback="false"
+              class="w-full"
+              inputClass="w-full p-3"
             />
           </div>
-        </div>
 
-        <div v-if="authStore.error" class="rounded-md bg-red-50 p-4">
-          <div class="text-sm text-red-700">
-            {{ authStore.error }}
+          <div class="flex justify-between items-center text-sm">
+            <div class="flex items-center">
+              <Checkbox v-model="rememberMe" binary />
+              <label class="ml-2 text-gray-600 cursor-pointer">Recordarme</label>
+            </div>
+            <a href="#" class="text-blue-600 hover:text-blue-500 font-medium">¿Olvidaste tu contraseña?</a>
           </div>
-        </div>
 
-        <div>
-          <button
+          <Button
             type="submit"
-            :disabled="authStore.loading"
-            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span v-if="authStore.loading" class="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg class="animate-spin h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </span>
-            {{ authStore.loading ? 'Iniciando sesión...' : 'Iniciar Sesión' }}
-          </button>
+            label="Iniciar Sesión"
+            icon="pi pi-arrow-right"
+            :loading="authStore.loading"
+            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 text-white py-3 text-lg font-semibold shadow-lg"
+          />
+
+          <div v-if="authStore.error" class="mt-4">
+            <Message severity="error" :closable="true" @close="authStore.clearError()">
+              {{ authStore.error }}
+            </Message>
+          </div>
+        </form>
+      </template>
+
+      <template #footer>
+        <div class="text-center text-gray-600">
+          ¿No tienes una cuenta? 
+          <router-link to="/register" class="font-semibold text-blue-600 hover:text-blue-500 transition-colors ml-1">
+            Regístrate aquí
+          </router-link>
         </div>
-      </form>
-    </div>
+      </template>
+    </Card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
+// PrimeVue Components
+import Card from 'primevue/card'
+import InputText from 'primevue/inputtext'
+import Password from 'primevue/password'
+import Button from 'primevue/button'
+import Message from 'primevue/message'
+import Checkbox from 'primevue/checkbox'
+
 const router = useRouter()
 const authStore = useAuthStore()
+const rememberMe = ref(false)
 
 const form = reactive({
   email: '',
@@ -89,3 +103,57 @@ const handleLogin = async () => {
   }
 }
 </script>
+
+<style scoped>
+
+
+:deep(.p-card) {
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+}
+
+:deep(.p-card .p-card-content) {
+  padding: 2rem;
+}
+
+:deep(.p-card .p-card-footer) {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+:deep(.p-inputtext) {
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+:deep(.p-inputtext:focus) {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+:deep(.p-button) {
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+:deep(.p-button:not(:disabled):hover) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+}
+
+:deep(.p-password input) {
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+}
+
+:deep(.p-checkbox .p-checkbox-box) {
+  border-radius: 6px;
+  border: 2px solid #d1d5db;
+}
+
+:deep(.p-checkbox .p-checkbox-box.p-highlight) {
+  background: #3b82f6;
+  border-color: #3b82f6;
+}
+</style>
