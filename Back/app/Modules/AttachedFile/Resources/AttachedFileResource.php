@@ -10,7 +10,10 @@ class AttachedFileResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            // Add your resource fields here
+            'invoice_id' => $this->invoice_id,
+            'file_path' => $this->file_path,
+            'file_type' => $this->file_type,
+            'upload_date' => $this->upload_date,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

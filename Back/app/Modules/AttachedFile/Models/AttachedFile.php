@@ -10,7 +10,6 @@ class AttachedFile extends Model
     use HasFactory;
 
     protected $fillable = [
-        'id',
         'invoice_id',
         'file_path',
         'file_type',

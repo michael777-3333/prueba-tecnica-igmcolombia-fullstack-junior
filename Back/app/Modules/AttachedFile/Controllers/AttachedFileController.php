@@ -22,8 +22,8 @@ class AttachedFileController extends Controller
         $AttachedFiles = $this->AttachedFileService->getAllAttachedFiles();
         return response()->json([
             'success' => true,
-            'data' => $AttachedFiles,
-            'count' => $AttachedFiles->count()
+            'data' => AttachedFileResource::collection($AttachedFiles),
+            'message' => 'Archivos adjuntos encontrados exitosamente'
         ]);
     }
 
@@ -32,24 +32,25 @@ class AttachedFileController extends Controller
         $AttachedFile = $this->AttachedFileService->createAttachedFile($request->all());
         return response()->json([
             'success' => true,
-            'data' => $AttachedFile,
+            'data' => new AttachedFileResource($AttachedFile),
             'message' => 'Archivo adjunto creado exitosamente'
         ], 201);
     }
 
-    public function show(AttachedFile $AttachedFile)
+    public function show($id)
     {
+        $AttachedFile = AttachedFile::findOrFail($id);
         return response()->json([
             'success' => true,
-            'data' => $AttachedFile,
+            'data' => new AttachedFileResource($AttachedFile),
             'message' => 'Archivo adjunto encontrado exitosamente'
         ]);
     }
 
-    public function update(Request $request, AttachedFile $AttachedFile)
+    public function update(Request $request, $id)
     {
-        $attachedFile = AttachedFile::findOrFail($AttachedFile->id);
-        $updatedAttachedFile = $this->AttachedFileService->updateAttachedFile($attachedFile, $request->all());
+        $AttachedFile = AttachedFile::findOrFail($id);
+        $updatedAttachedFile = $this->AttachedFileService->updateAttachedFile($AttachedFile, $request->all());
         return response()->json([
             'success' => true,
             'data' => new AttachedFileResource($updatedAttachedFile),
@@ -57,9 +58,13 @@ class AttachedFileController extends Controller
         ]);
     }
 
-    public function destroy(AttachedFile $AttachedFile)
+    public function destroy($id)
     {
+        $AttachedFile = AttachedFile::findOrFail($id);
         $this->AttachedFileService->deleteAttachedFile($AttachedFile);
-        return response()->json(null, 204);
+        return response()->json([
+            'success' => true,
+            'message' => 'Archivo adjunto eliminado exitosamente'
+        ]);
     }
 }
