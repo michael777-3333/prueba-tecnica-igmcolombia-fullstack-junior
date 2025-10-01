@@ -10,7 +10,7 @@ services:
     volumes:
       - .:/var/www/html
     env_file:
-      - .env.production
+      - .env
     networks:
       - appnet
 
