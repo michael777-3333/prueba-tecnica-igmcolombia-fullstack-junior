@@ -41,6 +41,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/generate-invoices',
+      name: 'generate invoices',
+      component: () => import('../views/generate-invoices/GenerateInvoices.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('../views/NotFoundView.vue')
@@ -51,12 +57,12 @@ const router = createRouter({
 // Guard de navegación para rutas protegidas
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
-  
+
   // Inicializar autenticación si hay token en localStorage
   if (!authStore.user && authStore.token) {
     await authStore.fetchUser()
   }
-  
+
   // Verificar si la ruta requiere autenticación
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     next('/login')

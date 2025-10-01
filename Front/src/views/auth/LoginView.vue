@@ -1,32 +1,35 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-    <Card class="w-full max-w-md shadow-2xl border-0">
+  <div
+    class="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8"
+  >
+    <Card class="w-full max-w-sm shadow-xl border-0">
       <template #header>
-        <div class="text-center pt-6">
-          <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <i class="pi pi-lock text-2xl text-white"></i>
+        <div class="text-center pt-4">
+          <div
+            class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg"
+          >
+            <i class="pi pi-lock text-xl text-white"></i>
           </div>
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">Bienvenido</h1>
-          <p class="text-gray-600 text-lg">Inicia sesión en tu cuenta</p>
+          <h1 class="text-2xl font-bold text-gray-900 mb-1">Bienvenido</h1>
+          <p class="text-gray-600 text-sm">Inicia sesión en tu cuenta</p>
         </div>
       </template>
 
       <template #content>
-        <form @submit.prevent="handleLogin" class="space-y-6">
-          <div class="space-y-2">
-            <label for="email" class="text-sm font-semibold text-gray-700">Email</label>
+        <form @submit.prevent="handleLogin" class="space-y-4">
+          <div class="space-y-1">
+            <label for="email" class="text-xs font-semibold text-gray-700">Email</label>
             <InputText
               id="email"
               v-model="form.email"
               type="email"
               placeholder="tu@email.com"
-              class="w-full p-3"
-              size="large"
+              class="w-full p-2"
             />
           </div>
 
-          <div class="space-y-2">
-            <label for="password" class="text-sm font-semibold text-gray-700">Contraseña</label>
+          <div class="space-y-1">
+            <label for="password" class="text-xs font-semibold text-gray-700">Contraseña</label>
             <Password
               id="password"
               v-model="form.password"
@@ -34,16 +37,18 @@
               toggleMask
               :feedback="false"
               class="w-full"
-              inputClass="w-full p-3"
+              inputClass="w-full p-2"
             />
           </div>
 
-          <div class="flex justify-between items-center text-sm">
+          <div class="flex justify-between items-center text-xs">
             <div class="flex items-center">
               <Checkbox v-model="rememberMe" binary />
-              <label class="ml-2 text-gray-600 cursor-pointer">Recordarme</label>
+              <label class="ml-1 text-gray-600 cursor-pointer">Recordarme</label>
             </div>
-            <a href="#" class="text-blue-600 hover:text-blue-500 font-medium">¿Olvidaste tu contraseña?</a>
+            <a href="#" class="text-blue-600 hover:text-blue-500 font-medium"
+              >¿Olvidaste tu contraseña?</a
+            >
           </div>
 
           <Button
@@ -51,11 +56,11 @@
             label="Iniciar Sesión"
             icon="pi pi-arrow-right"
             :loading="authStore.loading"
-            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 text-white py-3 text-lg font-semibold shadow-lg"
+            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 border-0 text-white py-2 text-sm font-semibold shadow-lg"
           />
 
-          <div v-if="authStore.error" class="mt-4">
-            <Message severity="error" :closable="true" @close="authStore.clearError()">
+          <div v-if="authStore.error" class="mt-2">
+            <Message severity="error" :closable="true">
               {{ authStore.error }}
             </Message>
           </div>
@@ -63,9 +68,12 @@
       </template>
 
       <template #footer>
-        <div class="text-center text-gray-600">
-          ¿No tienes una cuenta? 
-          <router-link to="/register" class="font-semibold text-blue-600 hover:text-blue-500 transition-colors ml-1">
+        <div class="text-center text-gray-600 text-sm">
+          ¿No tienes una cuenta?
+          <router-link
+            to="/register"
+            class="font-semibold text-blue-600 hover:text-blue-500 transition-colors ml-1"
+          >
             Regístrate aquí
           </router-link>
         </div>
@@ -93,7 +101,7 @@ const rememberMe = ref(false)
 
 const form = reactive({
   email: '',
-  password: ''
+  password: '',
 })
 
 const handleLogin = async () => {
@@ -105,35 +113,33 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-
-
 :deep(.p-card) {
-  border-radius: 20px;
+  border-radius: 12px;
   backdrop-filter: blur(10px);
 }
 
 :deep(.p-card .p-card-content) {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 :deep(.p-card .p-card-footer) {
-  padding: 1.5rem 2rem;
+  padding: 1rem 1.5rem;
   border-top: 1px solid #e5e7eb;
 }
 
 :deep(.p-inputtext) {
-  border-radius: 10px;
-  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
 }
 
 :deep(.p-inputtext:focus) {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
 :deep(.p-button) {
-  border-radius: 12px;
+  border-radius: 6px;
   transition: all 0.3s ease;
 }
 
@@ -143,13 +149,13 @@ const handleLogin = async () => {
 }
 
 :deep(.p-password input) {
-  border-radius: 10px;
-  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
 }
 
 :deep(.p-checkbox .p-checkbox-box) {
-  border-radius: 6px;
-  border: 2px solid #d1d5db;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
 }
 
 :deep(.p-checkbox .p-checkbox-box.p-highlight) {

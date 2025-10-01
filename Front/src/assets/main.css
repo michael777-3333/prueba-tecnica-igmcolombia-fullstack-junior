@@ -10,7 +10,7 @@
 /* Reset para el layout de la aplicación */
 #app {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
 }
@@ -18,8 +18,9 @@
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* Estilos para enlaces */
@@ -49,4 +50,38 @@ a:hover {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* Estilos globales más compactos */
+body {
+  font-size: 14px;
+}
+
+/* Estilos responsive adicionales */
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+
+  .page-title {
+    font-size: 18px !important;
+  }
+
+  .page-subtitle {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 320px) {
+  body {
+    font-size: 12px;
+  }
+
+  .page-title {
+    font-size: 16px !important;
+  }
+
+  .page-subtitle {
+    font-size: 10px !important;
+  }
 }

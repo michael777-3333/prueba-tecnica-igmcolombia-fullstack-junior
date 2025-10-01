@@ -1,17 +1,14 @@
 <template>
   <div class="app-container">
     <!-- SIDEBAR -->
-    <aside 
-      class="sidebar" 
-      :class="{ 'sidebar-collapsed': collapsed }"
-    >
+    <aside class="sidebar" :class="{ 'sidebar-collapsed': collapsed }">
       <!-- Header -->
       <div class="sidebar-header">
         <div class="brand">
           <i class="pi pi-building brand-icon"></i>
           <span v-if="!collapsed" class="brand-text">MiApp</span>
         </div>
-        <button 
+        <button
           class="collapse-button"
           @click="collapsed = !collapsed"
           :title="collapsed ? 'Expandir' : 'Colapsar'"
@@ -33,20 +30,15 @@
       <div v-if="!collapsed" class="search-section">
         <div class="search-box">
           <i class="pi pi-search search-icon"></i>
-          <input 
-            v-model="search"
-            type="text" 
-            placeholder="Buscar..." 
-            class="search-input"
-          />
+          <input v-model="search" type="text" placeholder="Buscar..." class="search-input" />
         </div>
       </div>
 
       <!-- Navigation -->
       <nav class="navigation">
         <ul class="nav-menu">
-          <li 
-            v-for="item in nav" 
+          <li
+            v-for="item in nav"
             :key="item.label"
             class="nav-item"
             :class="{ 'nav-item-active': activeRoute === item.to }"
@@ -97,9 +89,7 @@
       </main>
 
       <!-- Footer -->
-      <footer class="app-footer">
-        © {{ new Date().getFullYear() }} MiApp — Hecho con ❤️
-      </footer>
+      <footer class="app-footer">© {{ new Date().getFullYear() }} MiApp — Hecho con ❤️</footer>
     </div>
   </div>
 </template>
@@ -108,11 +98,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import Menubar from 'primevue/menubar'
-import Button from 'primevue/button'
-import InputText from 'primevue/inputtext'
-import Avatar from 'primevue/avatar'
-import Badge from 'primevue/badge'
-import { useAuthStore } from '@/stores/auth.store' // ajusta según tu store
+import { useAuthStore } from '@/stores/auth.store'
 
 // local state
 const router = useRouter()
@@ -121,12 +107,19 @@ const collapsed = ref(false)
 const search = ref('')
 
 // fake auth data (sustituir por store real)
-const auth = useAuthStore && useAuthStore() || { user: { name: 'Michael Stiven', email: 'michael@example.com' } }
+const auth = (useAuthStore && useAuthStore()) || {
+  user: { name: 'Michael Stiven', email: 'michael@example.com' },
+}
 const userName = computed(() => auth.user?.name || 'Usuario')
 const userEmail = computed(() => auth.user?.email || 'usuario@domain.com')
 const userInitials = computed(() => {
   const name = userName.value
-  return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2)
 })
 
 // navigation
@@ -134,9 +127,10 @@ const nav = [
   { label: 'Inicio', to: '/', icon: 'pi-home' },
   { label: 'Dashboard', to: '/dashboard', icon: 'pi-chart-line' },
   { label: 'Usuarios', to: '/users', icon: 'pi-users', badge: 6 },
-  { label: 'Facturas', to: '/invoices', icon: 'pi-file-invoice' },
+  { label: 'Facturas', to: '/invoices', icon: 'pi-receipt' },
   { label: 'Productos', to: '/products', icon: 'pi-box' },
-  { label: 'Ajustes', to: '/settings', icon: 'pi-cog' }
+  { label: 'Ajustes', to: '/settings', icon: 'pi-cog' },
+  { label: 'Generar Facturas', to: '/generate-invoices', icon: 'pi pi-check' },
 ]
 
 // computed
@@ -153,9 +147,9 @@ const userMenu = [
     label: 'Cuenta',
     items: [
       { label: 'Perfil', icon: 'pi pi-user', command: () => goTo('/profile') },
-      { label: 'Configuración', icon: 'pi pi-cog', command: () => goTo('/settings') }
-    ]
-  }
+      { label: 'Configuración', icon: 'pi pi-cog', command: () => goTo('/settings') },
+    ],
+  },
 ]
 
 // methods
@@ -191,16 +185,22 @@ watch(search, (searchValue) => {
   display: flex;
   min-height: 100vh;
   background-color: #f8fafc;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
 }
 
 /* SIDEBAR */
 .sidebar {
-  width: 280px;
-  height: 100vh;
+  width: 240px;
+  min-height: 100vh;
   background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
   border-right: 1px solid #e2e8f0;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -214,30 +214,30 @@ watch(search, (searchValue) => {
 
 /* Header del sidebar */
 .sidebar-header {
-  padding: 20px;
+  padding: 12px;
   border-bottom: 1px solid #e2e8f0;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-height: 80px;
+  min-height: 56px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   color: white;
   text-decoration: none;
 }
 
 .brand-icon {
-  font-size: 24px;
+  font-size: 20px;
   color: white;
 }
 
 .brand-text {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
   color: white;
   letter-spacing: -0.5px;
@@ -246,15 +246,16 @@ watch(search, (searchValue) => {
 .collapse-button {
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
+  font-size: 14px;
 }
 
 .collapse-button:hover {
@@ -264,26 +265,26 @@ watch(search, (searchValue) => {
 
 /* Sección de usuario */
 .user-section {
-  padding: 20px;
+  padding: 12px;
   border-bottom: 1px solid #e2e8f0;
   background: white;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .user-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 16px;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  font-size: 14px;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .user-details {
@@ -295,18 +296,18 @@ watch(search, (searchValue) => {
 .user-name {
   font-weight: 600;
   color: #1e293b;
-  font-size: 14px;
-  margin-bottom: 2px;
+  font-size: 13px;
+  margin-bottom: 1px;
 }
 
 .user-email {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
 }
 
 /* Sección de búsqueda */
 .search-section {
-  padding: 16px 20px;
+  padding: 12px 16px;
   border-bottom: 1px solid #e2e8f0;
   background: white;
 }
@@ -317,20 +318,20 @@ watch(search, (searchValue) => {
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 10px;
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .search-input {
   width: 100%;
-  padding: 12px 12px 12px 40px;
+  padding: 8px 8px 8px 32px;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 6px;
   background: #f8fafc;
-  font-size: 14px;
+  font-size: 13px;
   transition: all 0.2s ease;
 }
 
@@ -345,7 +346,7 @@ watch(search, (searchValue) => {
 .navigation {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 12px;
+  padding: 12px 8px;
   background: white;
 }
 
@@ -356,8 +357,8 @@ watch(search, (searchValue) => {
 }
 
 .nav-item {
-  margin-bottom: 4px;
-  border-radius: 10px;
+  margin-bottom: 2px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
@@ -382,13 +383,13 @@ watch(search, (searchValue) => {
 .nav-item {
   display: flex;
   align-items: center;
-  padding: 12px 16px;
-  gap: 12px;
+  padding: 8px 12px;
+  gap: 10px;
 }
 
 .nav-icon {
-  font-size: 18px;
-  width: 20px;
+  font-size: 16px;
+  width: 18px;
   text-align: center;
   color: #64748b;
 }
@@ -401,7 +402,7 @@ watch(search, (searchValue) => {
   flex: 1;
   font-weight: 500;
   color: #374151;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .nav-item-active .nav-text {
@@ -484,7 +485,7 @@ watch(search, (searchValue) => {
 .top-bar {
   background: white;
   border-bottom: 1px solid #e2e8f0;
-  padding: 20px 32px;
+  padding: 8px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -494,18 +495,18 @@ watch(search, (searchValue) => {
 .top-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .page-title {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: #1e293b;
   margin: 0;
 }
 
 .page-subtitle {
-  font-size: 14px;
+  font-size: 12px;
   color: #64748b;
   display: none;
 }
@@ -542,7 +543,7 @@ watch(search, (searchValue) => {
 /* Contenido principal */
 .content-main {
   flex: 1;
-  padding: 32px;
+  padding: 12px;
   background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
   overflow-y: auto;
 }
@@ -562,7 +563,7 @@ watch(search, (searchValue) => {
   .page-subtitle {
     display: inline;
   }
-  
+
   .user-menu {
     display: block;
   }
@@ -575,26 +576,40 @@ watch(search, (searchValue) => {
     top: 0;
     z-index: 1000;
     transform: translateX(-100%);
+    width: 220px;
   }
-  
+
   .sidebar:not(.sidebar-collapsed) {
     transform: translateX(0);
   }
-  
+
   .main-wrapper {
     margin-left: 0;
   }
-  
+
   .content-main {
-    padding: 20px;
+    padding: 8px;
   }
-  
+
   .top-bar {
-    padding: 16px 20px;
+    padding: 8px 12px;
   }
-  
+
   .page-title {
-    font-size: 20px;
+    font-size: 16px;
+  }
+
+  .sidebar-header {
+    padding: 10px;
+    min-height: 50px;
+  }
+
+  .user-section {
+    padding: 10px;
+  }
+
+  .search-section {
+    padding: 10px 12px;
   }
 }
 
@@ -632,10 +647,22 @@ watch(search, (searchValue) => {
   animation: slideIn 0.3s ease forwards;
 }
 
-.nav-item:nth-child(1) { animation-delay: 0.1s; }
-.nav-item:nth-child(2) { animation-delay: 0.2s; }
-.nav-item:nth-child(3) { animation-delay: 0.3s; }
-.nav-item:nth-child(4) { animation-delay: 0.4s; }
-.nav-item:nth-child(5) { animation-delay: 0.5s; }
-.nav-item:nth-child(6) { animation-delay: 0.6s; }
+.nav-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.nav-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.nav-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.nav-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.nav-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.nav-item:nth-child(6) {
+  animation-delay: 0.6s;
+}
 </style>
