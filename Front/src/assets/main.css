@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Reset para el layout de la aplicación */
+#app {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Estilos para enlaces */
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #3b82f6;
+}
+
+/* Scrollbar personalizado */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Estilos globales más compactos */
+body {
+  font-size: 14px;
+}
+
+/* Estilos responsive adicionales */
+@media (max-width: 480px) {
+  body {
+    font-size: 13px;
+  }
+
+  .page-title {
+    font-size: 18px !important;
+  }
+
+  .page-subtitle {
+    font-size: 11px !important;
+  }
+}
+
+@media (max-width: 320px) {
+  body {
+    font-size: 12px;
+  }
+
+  .page-title {
+    font-size: 16px !important;
+  }
+
+  .page-subtitle {
+    font-size: 10px !important;
+  }
+}
