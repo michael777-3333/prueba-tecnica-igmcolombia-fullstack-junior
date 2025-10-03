@@ -189,6 +189,7 @@ const validateForm = () => {
   }
 
   let isValid = true
+  console.log('form.value', form.value);
 
   // Validar nombre
   if (!form.value.name.trim()) {
@@ -200,15 +201,9 @@ const validateForm = () => {
   }
 
   // Validar email
-  if (!form.value.quantity.trim()) {
+  if (String(form.value.quantity).trim() === '') {
     errors.value.quantity = 'La cantidad es requerida'
     isValid = false
-  } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(form.value.quantity)) {
-      errors.value.quantity = 'La cantidad no es válida'
-      isValid = false
-    }
   }
 
   // Validar apellido

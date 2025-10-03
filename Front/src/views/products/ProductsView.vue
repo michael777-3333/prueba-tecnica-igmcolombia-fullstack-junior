@@ -171,7 +171,7 @@ const formatDate = (dateString: string) => {
   })
 }
 
-const showCreateCustomerDialog = () => {
+const showCreateProductDialog = () => {
   selectedProduct.value = null
   isEditMode.value = false
   showDialog.value = true
