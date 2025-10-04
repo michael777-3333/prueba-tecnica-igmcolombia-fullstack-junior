@@ -2,66 +2,64 @@
   <div class="dialog-invoices-container">
     <form @submit.prevent="handleSubmit" class="invoices-form">
       <div class="form-group">
-        <label for="name" class="form-label">Número de factura *</label>
-        <InputText
-          id="name"
-          v-model="form.invoice_number"
-          @input="clearError('invoice_number')"
-          placeholder="Ingresa el número de factura"
-          :class="['form-input', { 'p-invalid': errors.invoice_number }]"
-          required
-        />
+        <label for="invoice_number" class="form-label">Número de factura *</label>
+        <div class="input-with-button">
+          <InputText
+            id="invoice_number"
+            v-model="form.invoice_number"
+            @input="clearError('invoice_number')"
+            placeholder="Ej: INV-001"
+            :class="['form-input', { 'p-invalid': errors.invoice_number }]"
+            required
+          />
+          <Button
+            v-if="!props.isEditMode"
+            icon="pi pi-refresh"
+            @click="generateInvoiceNumber"
+            class="generate-btn"
+            v-tooltip.top="'Generar número automático'"
+          />
+        </div>
         <small v-if="errors.invoice_number" class="p-error">{{ errors.invoice_number }}</small>
+        <small v-else class="form-hint">Formato sugerido: INV-XXX o FAC-XXX</small>
       </div>
 
       <div class="form-group">
-        <label for="last_name" class="form-label">Descripción *</label>
-        <InputText
+        <label for="description" class="form-label">Descripción *</label>
+        <Textarea
           id="description"
           v-model="form.description"
           @input="clearError('description')"
-          placeholder="Ingresa el apellido"
+          placeholder="Descripción de la factura"
           :class="['form-input', { 'p-invalid': errors.description }]"
+          rows="3"
           required
         />
-        <small v-if="errors.quantity" class="p-error">{{ errors.quantity }}</small>
+        <small v-if="errors.description" class="p-error">{{ errors.description }}</small>
       </div>
 
       <div class="form-group">
-        <label for="email" class="form-label">Cliente *</label>
-        <InputText
-          id="customer"
-          v-model="form.customer"
-          @input="clearError('customer')"
-          type="price"
-          placeholder="Ingresa el precio"
-          :class="['form-input', { 'p-invalid': errors.customer }]"
-          required
+        <label for="notes" class="form-label">Notas</label>
+        <Textarea
+          id="notes"
+          v-model="form.notes"
+          @input="clearError('notes')"
+          placeholder="Notas adicionales (opcional)"
+          :class="['form-input', { 'p-invalid': errors.notes }]"
+          rows="2"
         />
-        <small v-if="errors.customer" class="p-error">{{ errors.customer }}</small>
+        <small v-if="errors.notes" class="p-error">{{ errors.notes }}</small>
       </div>
 
-      <div class="form-group">
-        <label for="email" class="form-label">Usuario *</label>
-        <InputText
-          id="user"
-          v-model="form.user"
-          @input="clearError('user')"
-            type="total"
-            placeholder="Ingresa el total"
-            :class="['form-input', { 'p-invalid': errors.user }]"
-            required
-          />
-          <small v-if="errors.user" class="p-error">{{ errors.user }}</small>
-        </div>
+      <div class="form-row">
         <div class="form-group">
-        <label for="email" class="form-label">Fecha de emisión *</label>
-        <InputText
-          id="issued_date"
-          v-model="form.issued_date"
-          @input="clearError('issued_date')"
-            type="iva"
-            placeholder="Ingresa el documento"
+          <label for="issued_date" class="form-label">Fecha de emisión *</label>
+          <InputText
+            id="issued_date"
+            v-model="form.issued_date"
+            @input="clearError('issued_date')"
+            type="date"
+            placeholder="Fecha de emisión"
             :class="['form-input', { 'p-invalid': errors.issued_date }]"
             required
           />
@@ -69,19 +67,64 @@
         </div>
 
         <div class="form-group">
-        <label for="email" class="form-label">Fecha de vencimiento *</label>
-        <InputText
-          id="due_date"
-          v-model="form.due_date"
-          @input="clearError('due_date')"
-            type="iva"
-            placeholder="Ingresa la fecha de vencimiento"
+          <label for="due_date" class="form-label">Fecha de vencimiento *</label>
+          <InputText
+            id="due_date"
+            v-model="form.due_date"
+            @input="clearError('due_date')"
+            type="date"
+            placeholder="Fecha de vencimiento"
             :class="['form-input', { 'p-invalid': errors.due_date }]"
             required
           />
           <small v-if="errors.due_date" class="p-error">{{ errors.due_date }}</small>
         </div>
+      </div>
 
+      <div class="form-group">
+        <Button
+          v-if="!props.isEditMode"
+          label="Establecer fechas automáticas"
+          icon="pi pi-calendar"
+          @click="setAutomaticDates"
+          class="auto-dates-btn"
+          type="button"
+        />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="total_amount" class="form-label">Total *</label>
+          <InputText
+            id="total_amount"
+            v-model.number="form.total_amount"
+            @input="clearError('total_amount')"
+            type="number"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            :class="['form-input', { 'p-invalid': errors.total_amount }]"
+            required
+          />
+          <small v-if="errors.total_amount" class="p-error">{{ errors.total_amount }}</small>
+        </div>
+
+        <div class="form-group">
+          <label for="status" class="form-label">Estado *</label>
+          <Dropdown
+            id="status"
+            v-model="form.status"
+            @change="clearError('status')"
+            :options="statusOptions"
+            option-label="label"
+            option-value="value"
+            placeholder="Selecciona el estado"
+            :class="['form-input', { 'p-invalid': errors.status }]"
+            required
+          />
+          <small v-if="errors.status" class="p-error">{{ errors.status }}</small>
+        </div>
+      </div>
     </form>
 
     <div class="modal-footer">
@@ -106,34 +149,23 @@
 import { ref, watch } from 'vue'
 import { useInvoicesStore } from '@/stores/invoices.store'
 import type { CreateInvoiceData, UpdateInvoiceData, Invoice } from '@/views/Invoices/interfaces/invoices.interfaces'
-import Password from 'primevue/password'
 import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
+import Dropdown from 'primevue/dropdown'
 import Button from 'primevue/button'
 
 /**
- * Props estándar (receive from parent)<div class="form-group">
-        <label for="email" class="form-label">Celular *</label>
-        <InputText
-          id="email"
-          v-model="form.phone"
-          @input="clearError('phone')"
-            type="phone"
-            placeholder="Ingresa el celular"
-            :class="['form-input', { 'p-invalid': errors.phone }]"
-            required
-          />
-          <small v-if="errors.phone" class="p-error">{{ errors.phone }}</small>
-        </div>
- * - userData: datos cuando es edición (puede ser null)
+ * Props estándar (receive from parent)
+ * - invoiceData: datos cuando es edición (puede ser null)
  * - isEditMode: indica si estamos editando o creando
  */
 const props = withDefaults(
   defineProps<{
-    productData?: UpdateInvoiceData | null
+    invoiceData?: Invoice | null
     isEditMode?: boolean
   }>(),
   {
-    customerData: null,
+    invoiceData: null,
     isEditMode: false,
   },
 )
@@ -146,63 +178,68 @@ const emit = defineEmits<{
 
 const invoicesStore = useInvoicesStore()
 
+/** Opciones para el dropdown de estado */
+const statusOptions = [
+  { label: 'Pendiente', value: 'pending' },
+  { label: 'Pagado', value: 'paid' },
+  { label: 'Vencido', value: 'overdue' },
+  { label: 'Cancelado', value: 'cancelled' }
+]
+
 /** Form reactive */
 const form = ref({
-  name: '',
+  invoice_number: '',
   description: '',
-  customer: '',
-  user: '',
+  notes: '',
   issued_date: '',
   due_date: '',
-  total_amount: '',
-  status: '',
-  price: '',
-  total: '',
-  iva: '',
+  total_amount: 0,
+  status: 'pending',
 })
 
 /** Errores de validación */
 const errors = ref({
-  name: '',
+  invoice_number: '',
   description: '',
-  customer: '',
-  user: '',
+  notes: '',
   issued_date: '',
   due_date: '',
   total_amount: '',
   status: '',
-  price: '',
-  total: '',
-  iva: '',
 })
 
 /** Inicializa / resetea el formulario cuando cambian las props */
 watch(
-  () => [props.productData, props.isEditMode],
-  ([productData, isEditMode]) => {
-    if (productData && isEditMode && productData !== null && typeof productData === 'object') {
-      const product = productData as UpdateInvoiceData
+  () => [props.invoiceData, props.isEditMode],
+  ([invoiceData, isEditMode]) => {
+    if (invoiceData && isEditMode && invoiceData !== null && typeof invoiceData === 'object') {
+      const invoice = invoiceData as Invoice
+
+      // Formatear fechas para el input type="date"
+      const formatDateForInput = (dateString: string) => {
+        if (!dateString) return ''
+        const date = new Date(dateString)
+        return date.toISOString().split('T')[0]
+      }
+
       form.value = {
-        invoice_number: product.invoice_number ?? '',
-        description: product.description ?? '',
-        customer: product.customer ?? '',
-        user: product.user ?? '',
-        issued_date: product.issued_date ?? '',
-        due_date: product.due_date ?? '',
-        total_amount: product.total_amount ?? '',
-        status: product.status ?? '',
+        invoice_number: invoice.invoice_number ?? '',
+        description: invoice.description ?? '',
+        notes: invoice.notes ?? '',
+        issued_date: formatDateForInput(invoice.issued_date),
+        due_date: formatDateForInput(invoice.due_date),
+        total_amount: invoice.total_amount ?? 0,
+        status: invoice.status ?? 'pending',
       }
     } else {
       form.value = {
         invoice_number: '',
         description: '',
-        customer: '',
-        user: '',
+        notes: '',
         issued_date: '',
         due_date: '',
-        total_amount: '',
-        status: '',
-        iva: '',
+        total_amount: 0,
+        status: 'pending',
       }
     }
   },
@@ -213,10 +250,9 @@ watch(
 const validateForm = () => {
   // Limpiar errores anteriores
   errors.value = {
-    name: '',
+    invoice_number: '',
     description: '',
-    customer: '',
-    user: '',
+    notes: '',
     issued_date: '',
     due_date: '',
     total_amount: '',
@@ -226,7 +262,7 @@ const validateForm = () => {
   let isValid = true
   console.log('form.value', form.value);
 
-  // Validar nombre
+  // Validar número de factura
   if (!form.value.invoice_number.trim()) {
     errors.value.invoice_number = 'El número de factura es requerido'
     isValid = false
@@ -235,39 +271,55 @@ const validateForm = () => {
     isValid = false
   }
 
-  // Validar email
-  if (String(form.value.description).trim() === '') {
+  // Validar descripción
+  if (!form.value.description.trim()) {
     errors.value.description = 'La descripción es requerida'
     isValid = false
-  }
-
-  // Validar apellido
-  if (!form.value.customer.trim()) {
-    errors.value.customer = 'El cliente es requerido'
-    isValid = false
-  } else if (form.value.customer.trim().length < 2) {
-    errors.value.customer = 'El cliente debe tener al menos 2 caracteres'
+  } else if (form.value.description.trim().length < 5) {
+    errors.value.description = 'La descripción debe tener al menos 5 caracteres'
     isValid = false
   }
 
-  // Validar celular
-  if (!form.value.user.trim()) {
-    errors.value.user = 'El usuario es requerido'
-    isValid = false
-  }
-
-  // Validar documento
+  // Validar fecha de emisión
   if (!form.value.issued_date.trim()) {
     errors.value.issued_date = 'La fecha de emisión es requerida'
     isValid = false
+  } else {
+    const issuedDate = new Date(form.value.issued_date)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (issuedDate < today) {
+      errors.value.issued_date = 'La fecha de emisión no puede ser anterior a hoy'
+      isValid = false
+    }
   }
 
-  // Validar documento
+  // Validar fecha de vencimiento
   if (!form.value.due_date.trim()) {
     errors.value.due_date = 'La fecha de vencimiento es requerida'
     isValid = false
+  } else {
+    const dueDate = new Date(form.value.due_date)
+    const issuedDate = new Date(form.value.issued_date)
+
+    if (dueDate <= issuedDate) {
+      errors.value.due_date = 'La fecha de vencimiento debe ser posterior a la fecha de emisión'
+      isValid = false
+    }
   }
 
+  // Validar total
+  if (!form.value.total_amount || form.value.total_amount <= 0) {
+    errors.value.total_amount = 'El total debe ser mayor a 0'
+    isValid = false
+  }
+
+  // Validar estado
+  if (!form.value.status) {
+    errors.value.status = 'El estado es requerido'
+    isValid = false
+  }
 
   return isValid
 }
@@ -279,46 +331,62 @@ const clearError = (field: keyof typeof errors.value) => {
   }
 }
 
+/** Generar número de factura automático */
+const generateInvoiceNumber = () => {
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+
+  form.value.invoice_number = `INV-${year}${month}${day}-${random}`
+  clearError('invoice_number')
+}
+
+/** Establecer fechas automáticas */
+const setAutomaticDates = () => {
+  const today = new Date()
+  const dueDate = new Date(today)
+  dueDate.setDate(today.getDate() + 30) // 30 días después
+
+  form.value.issued_date = today.toISOString().split('T')[0]
+  form.value.due_date = dueDate.toISOString().split('T')[0]
+
+  clearError('issued_date')
+  clearError('due_date')
+}
+
 const handleSubmit = async () => {
   // Validar formulario antes de enviar
   if (!validateForm()) {
     return
   }
+
   try {
     let result: { success: boolean; data?: unknown; error?: string | null } = {
       success: false,
     }
 
-    if (props.isEditMode && props.productData) {
+    if (props.isEditMode && props.invoiceData) {
       // Modo edición
-      const updateData = {
+      const updateData: UpdateInvoiceData = {
         invoice_number: form.value.invoice_number,
         description: form.value.description,
-        customer: form.value.customer,
-        user: form.value.user,
+        notes: form.value.notes,
         issued_date: form.value.issued_date,
         due_date: form.value.due_date,
         total_amount: form.value.total_amount,
         status: form.value.status,
+        customer: props.invoiceData.customer.id.toString(),
+        user: props.invoiceData.user.id.toString(),
+        products: props.invoiceData.products.map(p => p.id.toString()),
       }
-      result = await invoicesStore.updateInvoice(props.productData.id, updateData)
+      result = await invoicesStore.updateInvoice(props.invoiceData.id, updateData)
     } else {
-      // Modo creación
-      const productData: CreateInvoiceData = {
-        invoice_number: form.value.invoice_number,
-        description: form.value.description,
-        customer: form.value.customer,
-        user: form.value.user,
-        issued_date: form.value.issued_date,
-        due_date: form.value.due_date,
-        total_amount: form.value.total_amount,
-        status: form.value.status,
-        notes: '',
-        products: [],
-      }
-      result = await invoicesStore.createInvoice(
-        productData as Omit<Invoice, 'id' | 'created_at' | 'updated_at'>,
-      )
+      // Modo creación - redirigir a generate-invoices
+      console.log('Crear factura desde DialogInvoices - redirigir a generate-invoices')
+      emit('close')
+      return
     }
 
     if (result.success) {
@@ -329,14 +397,12 @@ const handleSubmit = async () => {
       form.value = {
         invoice_number: '',
         description: '',
-        customer: '',
-        user: '',
+        notes: '',
         issued_date: '',
         due_date: '',
-        total_amount: '',
-        status: '',
+        total_amount: 0,
+        status: 'pending',
       }
-
 
       // Avisar al padre que cierre el modal
       emit('close')
@@ -344,7 +410,7 @@ const handleSubmit = async () => {
       console.error('Operation failed', result)
     }
   } catch (error) {
-    console.error('Error al procesar usuario:', error)
+    console.error('Error al procesar factura:', error)
   }
 }
 
@@ -353,13 +419,12 @@ const handleCancel = () => {
   form.value = {
     invoice_number: '',
     description: '',
-    customer: '',
-    user: '',
+    notes: '',
     issued_date: '',
     due_date: '',
-    total_amount: '',
-    status: '',
-    }
+    total_amount: 0,
+    status: 'pending',
+  }
 
   // Emitir close para que el padre cierre el diálogo
   emit('close')
@@ -367,57 +432,130 @@ const handleCancel = () => {
 </script>
 
 <style scoped>
-/* (mismo CSS que tenías, lo conservé tal cual) */
-.dialog-user-container {
-  padding: 1rem;
+.dialog-invoices-container {
+  padding: 1.5rem;
   max-width: 100%;
 }
-.customer-form {
+
+.invoices-form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.5rem;
 }
+
 .form-label {
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #374151;
   margin-bottom: 0.25rem;
 }
+
 .form-input {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
+  transition: all 0.2s ease;
 }
+
 .form-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
+
+.input-with-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-button .form-input {
+  padding-right: 3rem;
+}
+
+.generate-btn {
+  position: absolute;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #667eea;
+  border: none;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.generate-btn:hover {
+  background: #5a67d8;
+  transform: scale(1.05);
+}
+
+.auto-dates-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  color: white;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.auto-dates-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
-  padding-top: 1rem;
+  gap: 0.75rem;
+  padding-top: 1.5rem;
   border-top: 1px solid #e5e7eb;
 }
+
 .cancel-btn {
   color: #6b7280;
+  border: 1px solid #d1d5db;
 }
+
+.cancel-btn:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
 .submit-btn {
-  background-color: #3b82f6;
-  border-color: #3b82f6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
 }
+
 .submit-btn:hover {
-  background-color: #2563eb;
-  border-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* Estilos para errores */
@@ -425,6 +563,15 @@ const handleCancel = () => {
   color: #dc2626;
   font-size: 0.75rem;
   margin-top: 0.25rem;
+  font-weight: 500;
+}
+
+/* Estilos para hints */
+.form-hint {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  font-style: italic;
 }
 
 .p-invalid {
@@ -437,19 +584,38 @@ const handleCancel = () => {
 }
 
 /* Responsive */
-@media (max-width: 640px) {
-  .dialog-customer-container {
-    padding: 0.75rem;
+@media (max-width: 768px) {
+  .dialog-invoices-container {
+    padding: 1rem;
   }
-  .user-form {
-    gap: 0.5rem;
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
   }
+
+  .invoices-form {
+    gap: 0.75rem;
+  }
+
   .form-label {
     font-size: 0.8125rem;
   }
+
   .form-input {
-    padding: 0.375rem;
+    padding: 0.625rem;
     font-size: 0.8125rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .cancel-btn,
+  .submit-btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 </style>

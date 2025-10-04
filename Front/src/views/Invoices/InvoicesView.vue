@@ -102,23 +102,26 @@
 
       <Column header="Total" style="min-width: 150px">
         <template #body="slotProps">
-          <div class="date-cell">
-            <i class="pi pi-money-bill date-icon"></i>
-            <span>{{ slotProps.data.total_amount }}</span>
+          <div class="amount-cell">
+            <i class="pi pi-money-bill amount-icon"></i>
+            <span class="amount-value">{{ formatCurrency(slotProps.data.total_amount) }}</span>
           </div>
         </template>
       </Column>
       <Column header="Estado" style="min-width: 150px">
         <template #body="slotProps">
-          <div class="date-cell">
-            <i class="pi pi-check date-icon"></i>
-            <span>{{ slotProps.data.status }}</span>
+          <div class="status-cell">
+            <Tag
+              :value="getStatusLabel(slotProps.data.status)"
+              :severity="getStatusSeverity(slotProps.data.status)"
+              :icon="getStatusIcon(slotProps.data.status)"
+            />
           </div>
         </template>
       </Column>
 
       <!-- Columna de acciones -->
-      <Column header="Acciones" style="min-width: 120px" :exportable="false">
+      <Column header="Acciones" style="min-width: 140px" :exportable="false">
         <template #body="slotProps">
           <div class="actions-cell">
             <Button
@@ -128,10 +131,10 @@
               v-tooltip.top="'Editar factura'"
             />
             <Button
-              icon="pi pi-info-circle"
+              icon="pi pi-eye"
               class="p-button-rounded p-button-text p-button-sm details-btn"
               @click="detailsInvoice(slotProps.data)"
-              v-tooltip.top="'Detalles de la factura'"
+              v-tooltip.top="'Ver detalles completos'"
             />
           </div>
         </template>
@@ -177,6 +180,7 @@ import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import Avatar from 'primevue/avatar'
 import Dialog from 'primevue/dialog'
+import Tag from 'primevue/tag'
 import { useInvoicesStore } from '@/stores/invoices.store'
 import type { Invoice } from './interfaces/invoices.interfaces'
 const invoicesStore = useInvoicesStore()
@@ -195,6 +199,45 @@ const formatDate = (dateString: string) => {
     month: 'short',
     day: 'numeric',
   })
+}
+
+const getStatusLabel = (status: string) => {
+  const statusMap: Record<string, string> = {
+    pending: 'Pendiente',
+    paid: 'Pagado',
+    overdue: 'Vencido',
+    cancelled: 'Cancelado'
+  }
+  return statusMap[status] || status
+}
+
+const getStatusSeverity = (status: string) => {
+  const severityMap: Record<string, string> = {
+    pending: 'warning',
+    paid: 'success',
+    overdue: 'danger',
+    cancelled: 'secondary'
+  }
+  return severityMap[status] || 'info'
+}
+
+const getStatusIcon = (status: string) => {
+  const iconMap: Record<string, string> = {
+    pending: 'pi pi-clock',
+    paid: 'pi pi-check-circle',
+    overdue: 'pi pi-exclamation-triangle',
+    cancelled: 'pi pi-times-circle'
+  }
+  return iconMap[status] || 'pi pi-info-circle'
+}
+
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
 }
 
 const showCreateInvoiceDialog = () => {
@@ -374,6 +417,32 @@ onMounted(() => {
   font-size: 10px;
 }
 
+/* Celda de estado */
+.status-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Celda de cantidad */
+.amount-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.amount-icon {
+  color: #10b981;
+  font-size: 12px;
+}
+
+.amount-value {
+  font-weight: 600;
+  color: #10b981;
+  font-size: 13px;
+}
+
 /* Celdas de acciones */
 .actions-cell {
   display: flex;
@@ -387,6 +456,15 @@ onMounted(() => {
 .edit-btn:hover {
   background: #dbeafe;
   color: #1d4ed8;
+}
+
+.details-btn {
+  color: #10b981;
+}
+
+.details-btn:hover {
+  background: #d1fae5;
+  color: #047857;
 }
 
 .delete-btn {
