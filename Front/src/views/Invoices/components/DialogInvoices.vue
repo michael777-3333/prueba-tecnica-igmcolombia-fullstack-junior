@@ -139,6 +139,7 @@
         :icon="isEditMode ? 'pi pi-check' : 'pi pi-plus'"
         @click="handleSubmit"
         :loading="invoicesStore.loading"
+        :disabled="invoicesStore.loading"
         class="submit-btn"
       />
     </div>
@@ -210,9 +211,9 @@ const errors = ref({
 
 /** Inicializa / resetea el formulario cuando cambian las props */
 watch(
-  () => [props.invoiceData, props.isEditMode],
-  ([invoiceData, isEditMode]) => {
-    if (invoiceData && isEditMode && invoiceData !== null && typeof invoiceData === 'object') {
+  () => props.invoiceData,
+  (invoiceData) => {
+    if (invoiceData && props.isEditMode && invoiceData !== null && typeof invoiceData === 'object') {
       const invoice = invoiceData as Invoice
 
       // Formatear fechas para el input type="date"
@@ -231,7 +232,8 @@ watch(
         total_amount: invoice.total_amount ?? 0,
         status: invoice.status ?? 'pending',
       }
-    } else {
+    } else if (!props.isEditMode) {
+      // Solo resetear si no estamos en modo edición
       form.value = {
         invoice_number: '',
         description: '',
@@ -390,9 +392,6 @@ const handleSubmit = async () => {
     }
 
     if (result.success) {
-      // Emit success para que el padre reciba los datos
-      emit('success', result.data)
-
       // Reset form
       form.value = {
         invoice_number: '',
@@ -404,13 +403,19 @@ const handleSubmit = async () => {
         status: 'pending',
       }
 
-      // Avisar al padre que cierre el modal
-      emit('close')
+      // Solo emitir success, el padre manejará el cierre
+      emit('success', result.data)
     } else {
       console.error('Operation failed', result)
+      // Mostrar mensaje de error al usuario si es necesario
+      if (result.error) {
+        console.error('Error:', result.error)
+      }
     }
   } catch (error) {
     console.error('Error al procesar factura:', error)
+    // En caso de error, asegurar que el modal se pueda cerrar
+    emit('close')
   }
 }
 

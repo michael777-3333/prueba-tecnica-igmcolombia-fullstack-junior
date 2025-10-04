@@ -49,7 +49,7 @@
         <template #body="slotProps">
           <div class="date-cell">
             <i class="pi pi-box date-icon"></i>
-            <span>{{ slotProps.data.invoice_number }}</span>
+            <span>{{ slotProps.data.invoice_number || 'Sin número' }}</span>
           </div>
         </template>
       </Column>
@@ -58,7 +58,7 @@
         <template #body="slotProps">
           <div class="date-cell">
             <i class="pi pi-clipboard date-icon" ></i>
-            <span>{{ slotProps.data.description }}</span>
+            <span>{{ slotProps.data.description || 'Sin descripción' }}</span>
           </div>
         </template>
       </Column>
@@ -67,7 +67,7 @@
         <template #body="slotProps">
           <div class="date-cell">
             <i class="pi pi-user date-icon"></i>
-            <span>{{ slotProps.data.customer.first_name }} {{ slotProps.data.customer.last_name  }}</span>
+            <span>{{ getCustomerName(slotProps.data.customer) }}</span>
           </div>
         </template>
       </Column>
@@ -75,7 +75,7 @@
         <template #body="slotProps">
           <div class="date-cell">
             <i class="pi pi-user date-icon"></i>
-            <span>{{ slotProps.data.user.name }}</span>
+            <span>{{ getUserName(slotProps.data.user) }}</span>
           </div>
         </template>
       </Column>
@@ -86,7 +86,7 @@
         <template #body="slotProps">
           <div class="date-cell">
             <i class="pi pi-calendar date-icon"></i>
-            <span>{{ slotProps.data.issued_date }}</span>
+            <span>{{ slotProps.data.issued_date || 'Sin fecha' }}</span>
           </div>
         </template>
       </Column>
@@ -95,7 +95,7 @@
         <template #body="slotProps">
           <div class="date-cell">
             <i class="pi pi-calendar date-icon"></i>
-            <span>{{ formatDate(slotProps.data.due_date) }}</span>
+            <span>{{ slotProps.data.due_date ? formatDate(slotProps.data.due_date) : 'Sin fecha' }}</span>
           </div>
         </template>
       </Column>
@@ -104,7 +104,7 @@
         <template #body="slotProps">
           <div class="amount-cell">
             <i class="pi pi-money-bill amount-icon"></i>
-            <span class="amount-value">{{ formatCurrency(slotProps.data.total_amount) }}</span>
+            <span class="amount-value">{{ slotProps.data.total_amount ? formatCurrency(slotProps.data.total_amount) : '$0' }}</span>
           </div>
         </template>
       </Column>
@@ -112,9 +112,9 @@
         <template #body="slotProps">
           <div class="status-cell">
             <Tag
-              :value="getStatusLabel(slotProps.data.status)"
-              :severity="getStatusSeverity(slotProps.data.status)"
-              :icon="getStatusIcon(slotProps.data.status)"
+              :value="getStatusLabel(slotProps.data.status || 'pending')"
+              :severity="getStatusSeverity(slotProps.data.status || 'pending')"
+              :icon="getStatusIcon(slotProps.data.status || 'pending')"
             />
           </div>
         </template>
@@ -146,10 +146,13 @@
       v-model:visible="showDialog"
       modal
       :header="isEditMode ? 'Editar Factura' : 'Crear Factura'"
-      :style="{ width: '40vw' }"
+      :style="{ width: '50vw' }"
+      @hide="handleDialogClose"
     >
       <DialogInvoices
-        :invoiceData="selectedInvoice ? selectedInvoice : null"
+        v-if="showDialog"
+        :key="selectedInvoice?.id || 'new'"
+        :invoiceData="selectedInvoice"
         :isEditMode="isEditMode"
         @success="handleDialogSuccess"
         @close="handleDialogClose"
@@ -171,7 +174,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import DialogInvoices from '@/views/Invoices/components/DialogInvoices.vue'
+import DialogInvoices from '@/views/Invoices/components/SimpleDialogInvoices.vue'
 import DetailsInvoices from '@/views/Invoices/components/DetailsInvoices.vue'
 // PrimeVue Components
 import DataTable from 'primevue/datatable'
@@ -240,6 +243,28 @@ const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
+const getCustomerName = (customer: any) => {
+  if (!customer) return 'Sin cliente'
+  if (customer.first_name && customer.last_name) {
+    return `${customer.first_name} ${customer.last_name}`
+  }
+  if (customer.name) {
+    return customer.name
+  }
+  return 'Cliente desconocido'
+}
+
+const getUserName = (user: any) => {
+  if (!user) return 'Sin usuario'
+  if (user.name) {
+    return user.name
+  }
+  if (user.first_name && user.last_name) {
+    return `${user.first_name} ${user.last_name}`
+  }
+  return 'Usuario desconocido'
+}
+
 const showCreateInvoiceDialog = () => {
   router.push('/generate-invoices')
 }
@@ -260,8 +285,16 @@ const handleDialogClose = () => {
 
 const handleDialogSuccess = (data: unknown) => {
   console.log('handleDialogSuccess', data)
-  invoicesStore.fetchInvoices()
-  handleDialogClose()
+
+  // Cerrar el modal inmediatamente
+  showDialog.value = false
+  selectedInvoice.value = null
+  isEditMode.value = false
+
+  // Actualizar la lista después
+  invoicesStore.fetchInvoices().catch(error => {
+    console.error('Error al actualizar facturas:', error)
+  })
 }
 
 const detailsInvoice = (invoice: Invoice) => {
@@ -271,7 +304,14 @@ const detailsInvoice = (invoice: Invoice) => {
 }
 
 onMounted(() => {
-  invoicesStore.fetchInvoices()
+  invoicesStore.fetchInvoices().then(() => {
+    console.log('Facturas cargadas:', invoicesStore.invoices)
+    // Verificar la estructura de los datos
+    if (invoicesStore.invoices.length > 0) {
+      console.log('Primera factura:', invoicesStore.invoices[0])
+      console.log('Customer de primera factura:', invoicesStore.invoices[0].customer)
+    }
+  })
 })
 </script>
 
