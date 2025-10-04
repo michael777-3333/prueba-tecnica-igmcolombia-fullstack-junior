@@ -1,6 +1,8 @@
 export interface Client {
   id: number
-  name: string
+  first_name: string
+  last_name: string
+  name?: string // Para compatibilidad con versiones anteriores
   email: string
   phone?: string
   address?: string
@@ -19,7 +21,7 @@ export interface Product {
 }
 
 export interface InvoiceItem {
-  id: number
+  id?: number
   product_id: number
   product_name: string
   quantity: number
@@ -28,21 +30,35 @@ export interface InvoiceItem {
 }
 
 export interface Invoice {
-  id?: number
+  id: number
+  invoice_number: string
   client_id: number
-  client_name?: string
+  client: Client
   items: InvoiceItem[]
   subtotal: number
   tax: number
-  total: number
-  status: 'draft' | 'sent' | 'paid' | 'cancelled'
+  total_amount: number
+  status: string
   notes?: string
-  created_at?: string
-  updated_at?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface CreateInvoiceData {
-  client_id: number
-  items: Omit<InvoiceItem, 'id' | 'product_name'>[]
+  customer_id: number
+  user_id: number
+  invoice_number: string
+  issue_date: string
+  due_date: string
+  total_amount: number
+  status: string
+  description: string
   notes?: string
+  items: {
+    product_id: number
+    quantity: number
+    unit_price: number
+    total: number
+    tax_rate?: number
+  }[]
 }

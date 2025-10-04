@@ -75,11 +75,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useCatalogStore } from '@/stores/catalog.store'
+import { useAlert } from '@/composables/useAlert'
 import InputText from 'primevue/inputtext'
 import Textarea from 'primevue/textarea'
 import Button from 'primevue/button'
 
 const catalogStore = useCatalogStore()
+const { success, error } = useAlert()
 
 // Emits
 const emit = defineEmits<{
@@ -175,12 +177,14 @@ const handleSubmit = async () => {
         phone: '',
         address: '',
       }
+
+      success('Cliente creado exitosamente')
     } else {
-      alert('Error al crear cliente: ' + result.error)
+      error('Error al crear cliente: ' + result.error)
     }
-  } catch (error) {
-    console.error('Error al crear cliente:', error)
-    alert('Error inesperado al crear cliente')
+  } catch (err) {
+    console.error('Error al crear cliente:', err)
+    error('Error inesperado al crear cliente')
   }
 }
 

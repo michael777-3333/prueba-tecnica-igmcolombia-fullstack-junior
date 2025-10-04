@@ -23,7 +23,16 @@ class InvoiceItem extends Model
     ];
 
     // Add your relationships here
-    
+    public function invoice()
+    {
+        return $this->belongsTo(\App\Modules\Invoice\Models\Invoice::class);
+    }
+
+    public function item()
+    {
+        return $this->belongsTo(\App\Modules\Item\Models\Item::class);
+    }
+
     /**
      * Get the route key for the model.
      */

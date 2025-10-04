@@ -41,6 +41,7 @@ Route::prefix('auth')->group(function () {
 // Rutas protegidas con autenticación
 Route::middleware('auth:sanctum')->group(function () {
     // USUARIOS
+    Route::middleware(['auth', 'permission:usuarios'])->group(function () {
     Route::prefix('users')->group(function () {
         Route::get('/', [UserController::class, 'index']);
         Route::post('/', [UserController::class, 'store']);
@@ -48,8 +49,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{user}', [UserController::class, 'update']);
         Route::delete('/{user}', [UserController::class, 'destroy']);
     });
-
+    });
     // CLIENTES
+    Route::middleware(['auth', 'permission:clientes'])->group(function () {
     Route::prefix('customers')->group(function () {
         Route::get('/', [CustomerController::class, 'index']);
         Route::post('/', [CustomerController::class, 'store']);
@@ -57,23 +59,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{customer}', [CustomerController::class, 'update']);
         Route::delete('/{customer}', [CustomerController::class, 'destroy']);
     });
-
+    });
     // FACTURAS
+    Route::middleware(['auth', 'permission:facturas'])->group(function () {
     Route::prefix('invoices')->group(function () {
         Route::get('/', [InvoiceController::class, 'index']);
         Route::post('/', [InvoiceController::class, 'store']);
         Route::get('/{invoice}', [InvoiceController::class, 'show']);
         Route::put('/{invoice}', [InvoiceController::class, 'update']);
         Route::delete('/{invoice}', [InvoiceController::class, 'destroy']);
-        
+
         // Rutas adicionales para facturas
         Route::get('/{invoice}/items', [InvoiceController::class, 'getItems']);
         Route::post('/{invoice}/items', [InvoiceController::class, 'addItem']);
         Route::get('/{invoice}/files', [InvoiceController::class, 'getFiles']);
         Route::post('/{invoice}/files', [InvoiceController::class, 'addFile']);
     });
-
+    });
     // ITEMS DE FACTURA
+    Route::middleware(['auth', 'permission:items'])->group(function () {
     Route::prefix('invoice-items')->group(function () {
         Route::get('/', [InvoiceItemController::class, 'index']);
         Route::post('/', [InvoiceItemController::class, 'store']);
@@ -81,8 +85,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{invoiceItem}', [InvoiceItemController::class, 'update']);
         Route::delete('/{invoiceItem}', [InvoiceItemController::class, 'destroy']);
     });
+    });
 
     // ARCHIVOS ADJUNTOS
+    Route::middleware(['auth', 'permission:archivos-adjuntos'])->group(function () {
     Route::prefix('attached-files')->group(function () {
         Route::get('/', [AttachedFileController::class, 'index']);
         Route::post('/', [AttachedFileController::class, 'store']);
@@ -90,8 +96,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{attachedFile}', [AttachedFileController::class, 'update']);
         Route::delete('/{attachedFile}', [AttachedFileController::class, 'destroy']);
     });
-
+    });
     // ITEMS
+    Route::middleware(['auth', 'permission:items'])->group(function () {
     Route::prefix('items')->group(function () {
         Route::get('/', [ItemController::class, 'index']);
         Route::post('/', [ItemController::class, 'store']);
@@ -99,8 +106,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{item}', [ItemController::class, 'update']);
         Route::delete('/{item}', [ItemController::class, 'destroy']);
     });
-
+    });
     // DASHBOARD/ESTADÍSTICAS
+    Route::middleware(['auth', 'permission:dashboard'])->group(function () {
     Route::get('/dashboard/stats', function () {
         return response()->json([
             'success' => true,
@@ -112,5 +120,6 @@ Route::middleware('auth:sanctum')->group(function () {
                 'pendingInvoices' => \App\Modules\Invoice\Models\Invoice::where('status', 'pending')->count(),
             ]
         ]);
+    });
     });
 });

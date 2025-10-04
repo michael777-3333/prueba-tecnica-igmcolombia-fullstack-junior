@@ -17,10 +17,16 @@ export const useCatalogStore = defineStore('catalog', () => {
 
     try {
       const response = await api.get('/customers')
-      clients.value = response.data.data || response.data
+
+      const clientsData = response.data.data || response.data
+
+      clients.value = Array.isArray(clientsData) ? clientsData : []
+
       return { success: true, data: clients.value }
     } catch (err: any) {
+      console.error('Error fetching clients:', err)
       error.value = err.response?.data?.message || 'Error al cargar clientes'
+      clients.value = [] // Asegurar que sea un array vacío en caso de error
       return { success: false, error: error.value }
     } finally {
       loading.value = false
@@ -32,7 +38,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     error.value = null
 
     try {
-      const response = await api.post('/clients', clientData)
+      const response = await api.post('/customers', clientData)
       const newClient = response.data.data || response.data
       clients.value.push(newClient)
       return { success: true, data: newClient }
@@ -66,7 +72,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     error.value = null
 
     try {
-      const response = await api.post('/products', productData)
+      const response = await api.post('/items', productData)
       const newProduct = response.data.data || response.data
       products.value.push(newProduct)
       return { success: true, data: newProduct }
