@@ -72,7 +72,7 @@ class InvoiceService
                     'price' => $invoiceItem->item->price ?? null,
                     'quantity' => $invoiceItem->quantity ?? null,
                     'total' => $invoiceItem->total ?? null,
-                    'iva' => 19 ?? null,
+                    'iva' => $invoiceItem->tax_rate ?? $invoiceItem->item->iva ?? null,
                 ];
             })->filter(function ($product) {
                 return $product['id'] !== null;
@@ -104,7 +104,7 @@ class InvoiceService
                         'name' => $item->name, // Usar el nombre del item
                         'quantity' => $itemData['quantity'],
                         'unit_price' => $itemData['unit_price'],
-                        'tax_rate' => $item->iva ?? 0.19, // Usar el IVA del item o 19% por defecto
+                        'tax_rate' => 0.19, // Usar el IVA del item o 19% por defecto
                     ]);
                 }
             }
