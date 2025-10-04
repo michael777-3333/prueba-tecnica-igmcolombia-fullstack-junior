@@ -25,7 +25,7 @@
             {{ product.description }}
           </div>
           <div class="product-details">
-            <span class="product-price">${{ product.price.toFixed(2) }}</span>
+            <span class="product-price">${{Number(product.price).toFixed(2) }}</span>
             <span class="product-stock" :class="{ 'low-stock': product.stock <= 5 }">
               Stock: {{ product.stock }}
             </span>
@@ -64,17 +64,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import type { Product } from '../interfaces/invoice.interface'
 import InputText from 'primevue/inputtext'
 import Button from 'primevue/button'
+import { useProductsStore } from '@/stores/products.store'
 
 // Props
 interface Props {
   products: Product[]
 }
+const productsStore = useProductsStore()
 
-const props = defineProps<Props>()
+const propsProducts = defineProps<Props>()
 
 // Emits
 const emit = defineEmits<{
@@ -86,15 +88,15 @@ const emit = defineEmits<{
 const searchTerm = ref('')
 
 // Computed
+
 const filteredProducts = computed(() => {
-  if (!searchTerm.value) {
-    return props.products
-  }
+  const list = propsProducts.products
+  if (!searchTerm.value) return list
 
   const term = searchTerm.value.toLowerCase()
-  return props.products.filter(
+  return list.filter(
     (product) =>
-      product.name.toLowerCase().includes(term) ||
+      product.name?.toLowerCase().includes(term) ||
       (product.description && product.description.toLowerCase().includes(term)),
   )
 })
@@ -108,6 +110,13 @@ const handleClose = () => {
   searchTerm.value = ''
   emit('close')
 }
+
+
+onMounted(() => {
+  console.log('onMounted')
+  productsStore.fetchProducts()
+})
+
 </script>
 
 <style scoped>

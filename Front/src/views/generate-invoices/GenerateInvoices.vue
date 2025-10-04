@@ -17,37 +17,55 @@
           </h3>
 
           <div class="client-selector">
-            <Dropdown
-              v-model="selectedClientId"
-              :options="clients"
-              option-label="name"
-              option-value="id"
-              placeholder="Selecciona un cliente"
-              :class="{ 'p-invalid': errors.clientId }"
-              @change="clearError('clientId')"
-              class="client-dropdown"
-            >
-              <template #option="{ option }">
-                <div class="client-option">
-                  <div class="client-name">{{ option.name }}</div>
-                  <div class="client-email">{{ option.email }}</div>
+            <!-- Lista simple de clientes -->
+            <div v-if="clientsList.length > 0" class="clients-list">
+              <div
+                v-for="client in clientsList"
+                :key="client.id"
+                class="client-card"
+                :class="{ 'selected': selectedClientId === client.id }"
+                @click="selectClient(client.id)"
+              >
+                <div class="client-info">
+                  <div class="client-name">{{ getClientName(client) }}</div>
+                  <div class="client-email">{{ client.email || 'Sin email' }}</div>
+                  <div v-if="client.phone" class="client-phone">{{ client.phone }}</div>
                 </div>
-              </template>
-            </Dropdown>
+                <div class="client-actions">
+                  <i class="pi pi-check" v-if="selectedClientId === client.id"></i>
+                </div>
+              </div>
+            </div>
 
-            <Button
-              icon="pi pi-plus"
-              label="Nuevo Cliente"
-              @click="showCreateClientDialog"
-              class="p-button-outlined add-client-btn"
-            />
+            <!-- Mensaje cuando no hay clientes -->
+            <div v-else class="no-clients">
+              <i class="pi pi-users"></i>
+              <p>No hay clientes disponibles</p>
+              <Button
+                icon="pi pi-plus"
+                label="Crear Primer Cliente"
+                @click="showCreateClientDialog"
+                class="p-button-outlined"
+              />
+            </div>
+
+            <!-- Botón para crear nuevo cliente -->
+            <div class="add-client-section">
+              <Button
+                icon="pi pi-plus"
+                label="Nuevo Cliente"
+                @click="showCreateClientDialog"
+                class="p-button-outlined add-client-btn"
+              />
+            </div>
           </div>
 
           <small v-if="errors.clientId" class="p-error">{{ errors.clientId }}</small>
 
           <!-- Información del cliente seleccionado -->
-          <div v-if="selectedClient" class="client-info">
+          <div v-if="selectedClient" class="selected-client-info">
             <div class="client-details">
+              <h4>{{ getClientName(selectedClient) }}</h4>
               <div class="detail-item">
                 <i class="pi pi-envelope"></i>
                 <span>{{ selectedClient.email }}</span>
@@ -211,6 +229,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useInvoicesStore } from '@/stores/invoices.store'
 import { useCatalogStore } from '@/stores/catalog.store'
+import { useProductsStore } from '@/stores/products.store'
 import type {
   InvoiceItem,
   CreateInvoiceData,
@@ -218,12 +237,12 @@ import type {
 import { AddProductDialog, CreateClientDialog } from './components'
 // PrimeVue Components
 import Button from 'primevue/button'
-import Dropdown from 'primevue/dropdown'
 import Textarea from 'primevue/textarea'
 import Dialog from 'primevue/dialog'
 
 const invoicesStore = useInvoicesStore()
 const catalogStore = useCatalogStore()
+const productsStore = useProductsStore()
 
 // Estado del formulario
 const selectedClientId = ref<number | null>(null)
@@ -241,18 +260,53 @@ const errors = ref({
   clientId: '',
 })
 
-// Computed
-const clients = computed(() => catalogStore.clients)
-const products = computed(() => catalogStore.products)
-const availableProducts = computed(() => products.value.filter((product) => product.stock > 0))
+// Computed - Lista simple de clientes
+const clientsList = computed(() => {
+  const storeClients = catalogStore.clients
+  if (!Array.isArray(storeClients)) {
+    return []
+  }
+
+  return storeClients.filter((client) => {
+    return client && typeof client.id === 'number'
+  })
+})
+
+const products = computed(() => {
+  const storeProducts = productsStore.products || []
+  if (!Array.isArray(storeProducts)) {
+    return []
+  }
+  console.log('storeProducts', storeProducts)
+  return storeProducts.map((p: any) => ({
+    ...p,
+    // price como número
+    price: typeof p.price === 'number' ? p.price : Number(p.price ?? 0),
+    // stock normalizado: prioriza `stock`, si no existe usa `quantity`
+    stock:
+      typeof p.stock === 'number'
+        ? p.stock
+        : typeof p.quantity === 'number'
+        ? p.quantity
+        : Number(p.quantity ?? 0),
+  }))
+})
+
+const availableProducts = computed(() => {
+  if (!Array.isArray(products.value)) return []
+  return products.value.filter((product) => product && typeof product.stock === 'number' && product.stock > 0)
+})
 
 const selectedClient = computed(() => {
-  if (!selectedClientId.value) return null
-  return clients.value.find((client) => client.id === selectedClientId.value)
+  if (selectedClientId.value == null) return null
+  return clientsList.value.find((client) => client.id === selectedClientId.value) ?? null
 })
 
 const subtotal = computed(() => {
-  return invoiceItems.value.reduce((sum, item) => sum + item.total, 0)
+  if (!Array.isArray(invoiceItems.value)) return 0
+  return invoiceItems.value.reduce((sum, item) => {
+    return sum + (typeof item.total === 'number' ? item.total : 0)
+  }, 0)
 })
 
 const tax = computed(() => {
@@ -264,7 +318,7 @@ const total = computed(() => {
 })
 
 const canGenerateInvoice = computed(() => {
-  return selectedClientId.value && invoiceItems.value.length > 0
+  return selectedClientId.value != null && invoiceItems.value.length > 0
 })
 
 // Funciones de validación
@@ -278,7 +332,6 @@ const validateForm = () => {
   }
 
   if (invoiceItems.value.length === 0) {
-    // Podríamos agregar un error aquí también
     isValid = false
   }
 
@@ -291,25 +344,50 @@ const clearError = (field: keyof typeof errors.value) => {
   }
 }
 
+// Función para obtener el nombre del cliente
+const getClientName = (client: any) => {
+  if (!client) return 'Cliente desconocido'
+
+  if (client.first_name && client.last_name) {
+    return `${client.first_name} ${client.last_name}`
+  } else if (client.name) {
+    return client.name
+  } else if (client.first_name) {
+    return client.first_name
+  } else if (client.last_name) {
+    return client.last_name
+  }
+
+  return 'Cliente sin nombre'
+}
+
+// Función para seleccionar cliente
+const selectClient = (clientId: number) => {
+  selectedClientId.value = clientId
+  clearError('clientId')
+}
+
 // Funciones de productos
 const showAddProductDialog = () => {
-  // if (availableProducts.value.length === 0) {
-  //   alert('No hay productos disponibles')
-  //   return
-  // }
   showProductDialog.value = true
 }
 
 const addProductToInvoice = (product: { id: number; name: string; price: number }) => {
+  if (!product || typeof product.id !== 'number' || !product.name || typeof product.price !== 'number') {
+    console.error('Producto inválido:', product)
+    return
+  }
+
   const existingItem = invoiceItems.value.find((item) => item.product_id === product.id)
 
   if (existingItem) {
-    // Si ya existe, aumentar cantidad
-    increaseQuantity(invoiceItems.value.indexOf(existingItem))
+    const index = invoiceItems.value.indexOf(existingItem)
+    if (index !== -1) {
+      increaseQuantity(index)
+    }
   } else {
-    // Si no existe, agregar nuevo item
     const newItem: InvoiceItem = {
-      id: Date.now(), // ID temporal
+      id: Date.now(),
       product_id: product.id,
       product_name: product.name,
       quantity: 1,
@@ -323,23 +401,27 @@ const addProductToInvoice = (product: { id: number; name: string; price: number 
 }
 
 const increaseQuantity = (index: number) => {
+  if (index < 0 || index >= invoiceItems.value.length) return
   const item = invoiceItems.value[index]
-  if (item) {
+  if (item && typeof item.quantity === 'number' && typeof item.unit_price === 'number') {
     item.quantity += 1
     item.total = item.quantity * item.unit_price
   }
 }
 
 const decreaseQuantity = (index: number) => {
+  if (index < 0 || index >= invoiceItems.value.length) return
   const item = invoiceItems.value[index]
-  if (item && item.quantity > 1) {
+  if (item && typeof item.quantity === 'number' && typeof item.unit_price === 'number' && item.quantity > 1) {
     item.quantity -= 1
     item.total = item.quantity * item.unit_price
   }
 }
 
 const removeItem = (index: number) => {
-  invoiceItems.value.splice(index, 1)
+  if (index >= 0 && index < invoiceItems.value.length) {
+    invoiceItems.value.splice(index, 1)
+  }
 }
 
 // Funciones de cliente
@@ -348,8 +430,12 @@ const showCreateClientDialog = () => {
 }
 
 const handleClientCreated = (client: { id: number }) => {
-  selectedClientId.value = client.id
-  showClientDialog.value = false
+  if (client && typeof client.id === 'number') {
+    selectedClientId.value = client.id
+    showClientDialog.value = false
+    // Refrescar la lista de clientes
+    catalogStore.fetchClients()
+  }
 }
 
 // Funciones de factura
@@ -357,7 +443,7 @@ const saveDraft = async () => {
   if (!validateForm()) return
 
   const invoiceData: CreateInvoiceData = {
-    client_id: selectedClientId.value!,
+    customer_id: selectedClientId.value!,
     items: invoiceItems.value.map((item) => ({
       product_id: item.product_id,
       quantity: item.quantity,
@@ -365,6 +451,12 @@ const saveDraft = async () => {
       total: item.total,
     })),
     notes: invoice.value.notes,
+    user_id: 1,
+    invoice_number: generateNumber(),
+    status: 'pending',
+    issue_date: formatDate(new Date()),
+    due_date: formatDate(new Date(new Date().setDate(new Date().getDate() + 30))),
+    total_amount: total.value,
   }
 
   const result = await invoicesStore.createInvoice(invoiceData)
@@ -377,14 +469,19 @@ const saveDraft = async () => {
   }
 }
 
+const formatDate = (date: Date) => {
+  return date.toISOString().split('T')[0]
+}
 const generateInvoice = async () => {
   if (!validateForm()) return
 
-  // Aquí podrías agregar lógica adicional para generar la factura
-  // Por ejemplo, cambiar el estado a 'sent' o generar PDF
-
   await saveDraft()
   alert('¡Factura generada exitosamente!')
+}
+
+
+const generateNumber = () => {
+  return Math.floor(1000000000 + Math.random() * 9000000000)
 }
 
 const resetForm = () => {
@@ -396,7 +493,11 @@ const resetForm = () => {
 
 // Lifecycle
 onMounted(async () => {
-  await Promise.all([catalogStore.fetchClients(), catalogStore.fetchProducts()])
+  try {
+    await Promise.all([catalogStore.fetchClients(), productsStore.fetchProducts()])
+  } catch (error) {
+    console.error('Error al cargar datos iniciales:', error)
+  }
 })
 </script>
 
@@ -457,57 +558,119 @@ onMounted(async () => {
 }
 
 .client-selector {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.client-dropdown {
+.clients-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.client-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.client-card:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.client-card.selected {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.client-info {
   flex: 1;
+}
+
+.client-name {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.client-email {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.client-phone {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.client-actions {
+  margin-left: 1rem;
+}
+
+.client-actions i {
+  color: #3b82f6;
+  font-size: 1.25rem;
+}
+
+.add-client-section {
+  margin-top: 1rem;
 }
 
 .add-client-btn {
   white-space: nowrap;
 }
 
-.client-option {
-  display: flex;
-  flex-direction: column;
-}
-
-.client-name {
-  font-weight: 500;
-}
-
-.client-email {
-  font-size: 0.875rem;
+.no-clients {
+  text-align: center;
+  padding: 2rem;
   color: #6b7280;
 }
 
-.client-info {
+.no-clients i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.no-clients p {
+  font-size: 1.125rem;
+  margin-bottom: 1rem;
+}
+
+.selected-client-info {
   margin-top: 1rem;
   padding: 1rem;
-  background: #f9fafb;
+  background: #f0f9ff;
   border-radius: 0.5rem;
+  border: 1px solid #bae6fd;
 }
 
-.client-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.client-details h4 {
+  font-weight: 600;
+  color: #0369a1;
+  margin-bottom: 0.5rem;
 }
 
-.detail-item {
+.client-details .detail-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   font-size: 0.875rem;
   color: #374151;
+  margin-bottom: 0.25rem;
 }
 
-.detail-item i {
-  color: #6b7280;
+.client-details .detail-item i {
+  color: #0369a1;
   width: 1rem;
 }
 
@@ -701,8 +864,8 @@ onMounted(async () => {
     padding: 1rem;
   }
 
-  .client-selector {
-    flex-direction: column;
+  .clients-list {
+    grid-template-columns: 1fr;
   }
 
   .item-controls {
