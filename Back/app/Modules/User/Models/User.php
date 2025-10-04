@@ -43,4 +43,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Modules\Customer\Models\Customer::class);
     }
+    public function role()
+    {
+        return $this->belongsTo(\App\Modules\Role\Models\Role::class);
+    }
+
 }
