@@ -159,8 +159,14 @@ const handleSubmit = async () => {
   if (!validateForm()) return
 
   try {
+    // Split name into first_name and last_name
+    const nameParts = form.value.name.trim().split(' ')
+    const first_name = nameParts[0] || ''
+    const last_name = nameParts.slice(1).join(' ') || ''
+
     const result = await catalogStore.createClient({
-      name: form.value.name.trim(),
+      first_name,
+      last_name,
       email: form.value.email.trim(),
       phone: form.value.phone.trim() || undefined,
       address: form.value.address.trim() || undefined,

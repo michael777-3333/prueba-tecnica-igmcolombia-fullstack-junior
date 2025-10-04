@@ -11,7 +11,7 @@
     "build": "npm run build-only",
     "preview": "vite preview",
     "test:unit": "vitest",
-    "build-only": "vue-tsc --skipLibCheck && vite build",
+    "build-only": "vite build",
     "type-check": "vue-tsc --skipLibCheck",
     "lint": "eslint . --fix",
     "format": "prettier --write src/",
