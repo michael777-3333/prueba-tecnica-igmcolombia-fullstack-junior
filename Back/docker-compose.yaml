@@ -39,7 +39,7 @@ services:
     ports:
       - "80:80"    # HTTP para IP
     volumes:
-      - ./nginx.ip.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - .:/var/www/html
     networks:
       - appnet
