@@ -167,6 +167,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import DialogInvoices from '@/views/Invoices/components/DialogInvoices.vue'
 import DetailsInvoices from '@/views/Invoices/components/DetailsInvoices.vue'
 // PrimeVue Components
@@ -179,6 +180,7 @@ import Dialog from 'primevue/dialog'
 import { useInvoicesStore } from '@/stores/invoices.store'
 import type { Invoice } from './interfaces/invoices.interfaces'
 const invoicesStore = useInvoicesStore()
+const router = useRouter()
 
 const globalFilter = ref('')
 
@@ -196,9 +198,7 @@ const formatDate = (dateString: string) => {
 }
 
 const showCreateInvoiceDialog = () => {
-  selectedInvoice.value = null
-  isEditMode.value = false
-  showDialog.value = true
+  router.push('/generate-invoices')
 }
 
 const editInvoice = (invoice: Invoice) => {

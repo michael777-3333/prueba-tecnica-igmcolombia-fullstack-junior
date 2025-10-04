@@ -3,8 +3,11 @@
 namespace App\Modules\Invoice\Services;
 
 use App\Modules\Invoice\Models\Invoice;
+use App\Modules\InvoiceItem\Models\InvoiceItem;
+use App\Modules\Item\Models\Item;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {
@@ -80,7 +83,35 @@ class InvoiceService
 
     public function createInvoice(array $data): Invoice
     {
-        return Invoice::create($data);
+        return DB::transaction(function () use ($data) {
+            // Extraer los items del array de datos
+            $items = $data['items'] ?? [];
+            unset($data['items']); // Remover items del array principal
+
+            // Crear la factura
+            $invoice = Invoice::create($data);
+
+            // Crear los invoice_items para cada item
+            foreach ($items as $itemData) {
+                // Buscar el item por product_id
+                $item = Item::find($itemData['product_id']);
+
+                if ($item) {
+                    // Crear el invoice_item con la relación al item
+                    InvoiceItem::create([
+                        'invoice_id' => $invoice->id,
+                        'item_id' => $item->id,
+                        'name' => $item->name, // Usar el nombre del item
+                        'quantity' => $itemData['quantity'],
+                        'unit_price' => $itemData['unit_price'],
+                        'tax_rate' => $item->iva ?? 0.19, // Usar el IVA del item o 19% por defecto
+                    ]);
+                }
+            }
+
+            // Retornar la factura con sus relaciones cargadas
+            return $invoice->load(['customer', 'user', 'invoiceItems.item']);
+        });
     }
 
     public function updateInvoice(Invoice $Invoice, array $data): Invoice

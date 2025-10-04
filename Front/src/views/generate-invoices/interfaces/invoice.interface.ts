@@ -45,19 +45,20 @@ export interface Invoice {
 }
 
 export interface CreateInvoiceData {
+  customer_id: number
   user_id: number
-  invoice_number: number
-  status: string
+  invoice_number: string
   issue_date: string
   due_date: string
   total_amount: number
-  customer_id: number
-
+  status: string
+  description: string
+  notes?: string
   items: {
     product_id: number
     quantity: number
     unit_price: number
     total: number
+    tax_rate?: number
   }[]
-  notes?: string
 }

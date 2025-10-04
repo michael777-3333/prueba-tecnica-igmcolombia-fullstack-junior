@@ -312,7 +312,7 @@ const subtotal = computed(() => {
 })
 
 const tax = computed(() => {
-  return subtotal.value * 0.21 // 21% IVA
+  return subtotal.value * 0.19 // 19% IVA
 })
 
 const total = computed(() => {
@@ -446,19 +446,21 @@ const saveDraft = async () => {
 
   const invoiceData: CreateInvoiceData = {
     customer_id: selectedClientId.value!,
+    user_id: 1,
+    invoice_number: `INV-${generateNumber()}`,
+    issue_date: formatDate(new Date()),
+    due_date: formatDate(new Date(new Date().setDate(new Date().getDate() + 30))),
+    total_amount: total.value,
+    status: 'pending',
+    description: `Factura para ${selectedClient.value?.first_name} ${selectedClient.value?.last_name}`,
+    notes: invoice.value.notes,
     items: invoiceItems.value.map((item) => ({
       product_id: item.product_id,
       quantity: item.quantity,
       unit_price: item.unit_price,
       total: item.total,
+      tax_rate: 0.19, // Enviar como decimal (19% = 0.19)
     })),
-    notes: invoice.value.notes,
-    user_id: 1,
-    invoice_number: generateNumber(),
-    status: 'pending',
-    issue_date: formatDate(new Date()),
-    due_date: formatDate(new Date(new Date().setDate(new Date().getDate() + 30))),
-    total_amount: total.value,
   }
 
   const result = await invoicesStore.createInvoice(invoiceData)
@@ -483,7 +485,7 @@ const generateInvoice = async () => {
 
 
 const generateNumber = () => {
-  return Math.floor(1000000000 + Math.random() * 9000000000)
+  return Math.floor(1000 + Math.random() * 9000)
 }
 
 const resetForm = () => {
