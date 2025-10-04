@@ -19,7 +19,7 @@ class InvoiceController extends Controller
 
     public function index()
     {
-        $Invoices = $this->InvoiceService->getAllInvoices();
+        $Invoices = $this->InvoiceService->getAllInvoicesFormatted();
         return response()->json([
             'success' => true,
             'data' => $Invoices,
@@ -39,9 +39,10 @@ class InvoiceController extends Controller
 
     public function show(Invoice $Invoice)
     {
+        $formattedInvoice = $this->InvoiceService->getInvoiceByIdFormatted($Invoice->id);
         return response()->json([
             'success' => true,
-            'data' => $Invoice,
+            'data' => $formattedInvoice,
             'message' => 'Factura encontrada exitosamente'
         ]);
     }

@@ -29,11 +29,28 @@ class Invoice extends Model
     // Add your relationships here
     public function customer()
     {
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(\App\Modules\Customer\Models\Customer::class);
     }
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\Modules\User\Models\User::class);
+    }
+
+    public function invoiceItems()
+    {
+        return $this->hasMany(\App\Modules\InvoiceItem\Models\InvoiceItem::class);
+    }
+
+    public function products()
+    {
+        return $this->hasManyThrough(
+            \App\Modules\Item\Models\Item::class,
+            \App\Modules\InvoiceItem\Models\InvoiceItem::class,
+            'invoice_id',
+            'id',
+            'id',
+            'item_id'
+        );
     }
 }
