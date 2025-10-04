@@ -128,7 +128,7 @@ const nav = [
   { label: 'Dashboard', to: '/dashboard', icon: 'pi-chart-line' },
   { label: 'Usuarios', to: '/users', icon: 'pi-users', badge: 6 },
   { label: 'Facturas', to: '/invoices', icon: 'pi-receipt' },
-  { label: 'Ajustes', to: '/settings', icon: 'pi-cog' },
+  // { label: 'Ajustes', to: '/settings', icon: 'pi-cog' },
   { label: 'Productos', to: '/products', icon: 'pi-box' },
   { label: 'Clientes', to: '/customers', icon: 'pi pi-users' },
   { label: 'Generar Facturas', to: '/generate-invoices', icon: 'pi pi-check' },
