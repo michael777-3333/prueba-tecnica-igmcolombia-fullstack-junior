@@ -14,7 +14,9 @@
     "build-only": "vue-tsc --skipLibCheck && vite build",
     "type-check": "vue-tsc --skipLibCheck",
     "lint": "eslint . --fix",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "serve": "vue-cli-service serve --host 0.0.0.0"
+
   },
   "dependencies": {
     "@primevue/themes": "^4.3.9",
