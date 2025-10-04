@@ -72,7 +72,7 @@ class InvoiceService
                     'price' => $invoiceItem->item->price ?? null,
                     'quantity' => $invoiceItem->quantity ?? null,
                     'total' => $invoiceItem->total ?? null,
-                    'iva' => $invoiceItem->tax_rate ?? $invoiceItem->item->iva ?? null,
+                    'iva' => 19 ?? null,
                 ];
             })->filter(function ($product) {
                 return $product['id'] !== null;
