@@ -4,7 +4,8 @@ import api from '@/services/api'
 import type {
   Invoice,
   CreateInvoiceData,
-} from '@/views/generate-invoices/interfaces/invoice.interface'
+  UpdateInvoiceData,
+} from '@/views/Invoices/interfaces/invoices.interfaces'
 
 export const useInvoicesStore = defineStore('invoices', () => {
   // Estado
@@ -20,9 +21,26 @@ export const useInvoicesStore = defineStore('invoices', () => {
     try {
       const response = await api.get('/invoices')
       invoices.value = response.data.data || response.data
+      console.log('invoices', invoices.value)
       return { success: true, data: invoices.value }
     } catch (err: any) {
       error.value = err.response?.data?.message || 'Error al cargar facturas'
+      return { success: false, error: error.value }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const fetchInvoiceById = async (id: number) => {
+    loading.value = true
+    error.value = null
+
+    try {
+      const response = await api.get(`/invoices/${id}`)
+      const invoice = response.data.data || response.data
+      return { success: true, data: invoice }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || 'Error al cargar la factura'
       return { success: false, error: error.value }
     } finally {
       loading.value = false
@@ -90,6 +108,7 @@ export const useInvoicesStore = defineStore('invoices', () => {
 
     // Acciones
     fetchInvoices,
+    fetchInvoiceById,
     createInvoice,
     updateInvoice,
     deleteInvoice,
