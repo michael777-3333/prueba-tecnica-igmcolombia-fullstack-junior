@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { RouterView } from 'vue-router'
 import AppLayout from '@/components/AppLayout.vue'
+import AlertSystem from '@/components/AlertSystem.vue'
 
 const route = useRoute()
 
@@ -20,6 +21,9 @@ const shouldShowLayout = computed(() => {
     <DynamicDialog />
   </AppLayout>
   <RouterView v-else />
+
+  <!-- Sistema global de alertas -->
+  <AlertSystem />
 </template>
 
 <style>

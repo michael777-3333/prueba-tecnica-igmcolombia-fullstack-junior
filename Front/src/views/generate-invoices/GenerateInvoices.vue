@@ -230,6 +230,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useInvoicesStore } from '@/stores/invoices.store'
 import { useCatalogStore } from '@/stores/catalog.store'
 import { useProductsStore } from '@/stores/products.store'
+import { useAlert } from '@/composables/useAlert'
 import type {
   InvoiceItem,
   CreateInvoiceData,
@@ -243,6 +244,7 @@ import Dialog from 'primevue/dialog'
 const invoicesStore = useInvoicesStore()
 const catalogStore = useCatalogStore()
 const productsStore = useProductsStore()
+const { success, error } = useAlert()
 
 // Estado del formulario
 const selectedClientId = ref<number | null>(null)
@@ -462,10 +464,10 @@ const saveDraft = async () => {
   const result = await invoicesStore.createInvoice(invoiceData)
 
   if (result.success) {
-    alert('Factura guardada como borrador exitosamente')
+    success('Factura guardada como borrador exitosamente')
     resetForm()
   } else {
-    alert('Error al guardar la factura: ' + result.error)
+    error('Error al guardar la factura: ' + result.error)
   }
 }
 
@@ -476,7 +478,7 @@ const generateInvoice = async () => {
   if (!validateForm()) return
 
   await saveDraft()
-  alert('¡Factura generada exitosamente!')
+  success('¡Factura generada exitosamente!')
 }
 
 
