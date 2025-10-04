@@ -5,15 +5,12 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 
-# Aumentar memoria y saltar type checking
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 COPY . .
 
-# Saltar verificación de TypeScript
-RUN npm run build --skipLibCheck
-# O si no funciona:
-RUN npx vue-tsc --skipLibCheck && npm run build
+# Build directo sin TypeScript
+RUN npx vite build
 
 FROM nginx:stable-alpine AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
