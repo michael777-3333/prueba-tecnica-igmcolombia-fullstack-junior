@@ -104,7 +104,7 @@ class InvoiceService
                         'name' => $item->name, // Usar el nombre del item
                         'quantity' => $itemData['quantity'],
                         'unit_price' => $itemData['unit_price'],
-                        'tax_rate' => 0.19, // Usar el IVA del item o 19% por defecto
+                        'tax_rate' => 0.1, // Usar el IVA del item o 19% por defecto
                     ]);
                 }
             }
